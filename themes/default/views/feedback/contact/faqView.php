@@ -8,7 +8,7 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<h1><?php echo Yii::t('feedback', 'Вопрос и ответ #{id}',array('{id}' => $model->id));?> <?php echo CHtml::link('ЗАДАЙТЕ ВОПРОС',array('/feedback/contact/'));?></h1>
+<h1><?php echo Yii::t('feedback', 'Вопрос и ответ #{id}',array('{id}' => $model->id));?> <?php echo CHtml::link('ЗАДАЙТЕ ВОПРОС',array('/feedback/index/'));?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
                                                     'data' => $model,
@@ -16,7 +16,12 @@ $this->breadcrumbs = array(
                                                         'creation_date',
                                                         'name',
                                                         'theme',
-                                                        'text',
+                                                        array(
+                                                            'name' => 'text',
+                                                            'type' => 'raw',
+                                                            'value' => $model->text,
+                                                        ),
+
                                                         array(
                                                             'name' => 'type',
                                                             'value' => $model->getType()
@@ -33,16 +38,7 @@ $this->breadcrumbs = array(
                                                     ),
                                                )); ?>
 
-
-
-<div style='float:left;padding-right:5px'>
-    <?php $this->widget('application.modules.social.widgets.ysc.yandex.YandexShareApi', array(
-    'type' => 'button',
-    'services' => 'all'
-));?>
-</div>
-
-<br/><br/><br/>
+<br/><br/>
 
 <?php $this->widget('application.modules.comment.widgets.CommentsListWidget', array('label' => 'Мнений','model' => $model, 'modelId' => $model->id)); ?>
 

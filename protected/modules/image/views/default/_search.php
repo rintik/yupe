@@ -4,14 +4,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'method'      => 'get',
     'type'        => 'vertical',
     'htmlOptions' => array('class' => 'well'),
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <fieldset class="inline">
         <?php echo $form->textFieldRow($model, 'id', array('class' => 'span5', 'maxlength' => 10,'size' => 60)); ?>
         <?php echo $form->textFieldRow($model, 'category_id', array('class' => 'span5', 'maxlength'=>10,'size' => 60)); ?>
@@ -30,7 +23,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
             'type'        =>'primary',
             'encodeLabel' => false,
             'buttonType'  => 'submit',
-            'label'       => '<i class="icon-search icon-white">&nbsp;</i> '.Yii::t('image','Искать изображение'),
+            'label'       => '<i class="icon-search icon-white">&nbsp;</i> '.Yii::t('ImageModule.image','Искать изображение'),
     )); ?>
 
 <?php $this->endWidget(); ?>

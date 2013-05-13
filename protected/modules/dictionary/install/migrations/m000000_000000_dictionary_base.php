@@ -1,60 +1,75 @@
 <?php
-class m000000_000000_dictionary_base extends CDbMigration
+/**
+ * Dictionary install migration
+ * Класс миграций для модуля Dictionary:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_dictionary_base extends YDbMigration
 {
+
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'dictionary_group';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'code' => 'string NOT NULL',
-            'name' => "string NOT NULL DEFAULT ''",
-            'description' => "varchar(300) NOT NULL DEFAULT ''",
-            'creation_date' => 'datetime NOT NULL',
-            'update_date' => 'datetime NOT NULL',
-            'create_user_id' => 'integer DEFAULT NULL',
-            'update_user_id' => 'integer DEFAULT NULL',
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
-
-        $this->createIndex("dictionary_group_code_unique",$tableName,"code", true);
-        $this->createIndex("dictionary_group_create_user_id",$tableName,"create_user_id", false);
-        $this->createIndex("dictionary_group_update_user_id",$tableName,"update_user_id", false);
-        $this->addForeignKey("dictionary_group_createuser_id",$tableName,'create_user_id',$db->tablePrefix.'user','id','SET NULL','CASCADE');
-        $this->addForeignKey("dictionary_group_updateuser_id",$tableName,'update_user_id',$db->tablePrefix.'user','id','SET NULL','CASCADE');
-
-
-        $tableName = $db->tablePrefix.'dictionary_data';
-        $this->createTable($tableName, array(
+        $this->createTable('{{dictionary_dictionary_group}}', array(
                 'id' => 'pk',
-                'group_id' => 'integer NOT NULL',
-                'code' => 'string NOT NULL',
-                'name' => 'string NOT NULL',
-                'value' => 'string NOT NULL',
-                'description' => "varchar(300) NOT NULL DEFAULT ''",
+                'code' => 'varchar(100) NOT NULL',
+                'name' => "varchar(250) NOT NULL",
+                'description' => "varchar(250) NOT NULL DEFAULT ''",
                 'creation_date' => 'datetime NOT NULL',
                 'update_date' => 'datetime NOT NULL',
                 'create_user_id' => 'integer DEFAULT NULL',
                 'update_user_id' => 'integer DEFAULT NULL',
-                'status' => "tinyint(3) unsigned NOT NULL DEFAULT '1'",
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+            ), $this->getOptions()
+        );
 
-        $this->createIndex("dictionary_data_code_unique",$tableName,"code", true);
-        $this->createIndex("dictionary_data_group_id",$tableName,"group_id", false);
-        $this->createIndex("dictionary_data_create_user_id",$tableName,"create_user_id", false);
-        $this->createIndex("dictionary_data_update_user_id",$tableName,"update_user_id", false);
-        $this->createIndex("dictionary_data_status",$tableName,"status", false);
+        //ix
+        $this->createIndex("ux_{{dictionary_dictionary_group}}_code", '{{dictionary_dictionary_group}}', "code", true);
+        $this->createIndex("ix_{{dictionary_dictionary_group}}_create_user_id", '{{dictionary_dictionary_group}}', "create_user_id", false);
+        $this->createIndex("ix_{{dictionary_dictionary_group}}_update_user_id", '{{dictionary_dictionary_group}}', "update_user_id", false);
 
-        $this->addForeignKey("dictionary_data_createuser_id",$tableName,'create_user_id',$db->tablePrefix.'user','id','SET NULL','CASCADE');
-        $this->addForeignKey("dictionary_data_updateuser_id",$tableName,'update_user_id',$db->tablePrefix.'user','id','SET NULL','CASCADE');
-        $this->addForeignKey("dictionary_data_group_id",$tableName,'group_id',$db->tablePrefix.'dictionary_group','id','CASCADE','CASCADE');
+        //fk
+        $this->addForeignKey("fk_{{dictionary_dictionary_group}}_create_user_id",'{{dictionary_dictionary_group}}', 'create_user_id','{{user_user}}', 'id', 'SET NULL', 'NO ACTION');
+        $this->addForeignKey("fk_{{dictionary_dictionary_group}}_update_user_id",'{{dictionary_dictionary_group}}', 'update_user_id', '{{user_user}}', 'id', 'SET NULL', 'NO ACTION');
 
+        /**
+         * Dictionary_data
+         **/
+        $this->createTable('{{dictionary_dictionary_data}}', array(
+                'id' => 'pk',
+                'group_id' => 'integer NOT NULL',
+                'code' => 'varchar(100) NOT NULL',
+                'name' => 'varchar(250) NOT NULL',
+                'value' => 'varchar(250) NOT NULL',
+                'description' => "varchar(250) NOT NULL DEFAULT ''",
+                'creation_date' => 'datetime NOT NULL',
+                'update_date' => 'datetime NOT NULL',
+                'create_user_id' => 'integer DEFAULT NULL',
+                'update_user_id' => 'integer DEFAULT NULL',
+                'status' => "integer NOT NULL DEFAULT '1'",
+            ), $this->getOptions()
+        );
+
+        //ix
+        $this->createIndex("ux_{{dictionary_dictionary_data}}_code_unique",'{{dictionary_dictionary_data}}', "code", true);
+        $this->createIndex("ix_{{dictionary_dictionary_data}}_group_id",'{{dictionary_dictionary_data}}', "group_id", false);
+        $this->createIndex("ix_{{dictionary_dictionary_data}}_create_user_id",'{{dictionary_dictionary_data}}', "create_user_id", false);
+        $this->createIndex("ix_{{dictionary_dictionary_data}}_update_user_id",'{{dictionary_dictionary_data}}', "update_user_id", false);
+        $this->createIndex("ix_{{dictionary_dictionary_data}}_status",'{{dictionary_dictionary_data}}', "status", false);
+
+        //fk
+        $this->addForeignKey("fk_{{dictionary_dictionary_data}}_create_user_id",'{{dictionary_dictionary_data}}', 'create_user_id', '{{user_user}}', 'id', 'SET NULL', 'NO ACTION');
+        $this->addForeignKey("fk_{{dictionary_dictionary_data}}_update_user_id",'{{dictionary_dictionary_data}}', 'update_user_id', '{{user_user}}', 'id', 'SET NULL', 'NO ACTION');
+        $this->addForeignKey("fk_{{dictionary_dictionary_data}}_data_group_id",'{{dictionary_dictionary_data}}', 'group_id','{{dictionary_dictionary_group}}', 'id', 'CASCADE', 'NO ACTION');
     }
  
+
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'dictionary_group');
-        $this->dropTable($db->tablePrefix.'dictionary_data');
-        $this->dropTable($db->tablePrefix.'dictionary');
+        $this->dropTableWithForeignKeys('{{dictionary_dictionary_data}}');
+        $this->dropTableWithForeignKeys('{{dictionary_dictionary_group}}');
     }
 }

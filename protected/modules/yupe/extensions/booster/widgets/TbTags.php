@@ -1,26 +1,33 @@
 <?php
-/**
- * TbTags.php
+/*## TbTags class file.
  *
- * @author: antonio ramirez <antonio@clevertech.biz>
- * Date: 12/10/12
- * Time: 7:50 PM
+ * @author Antonio Ramirez <antonio@clevertech.biz>
+ * @copyright Copyright &copy; Clevertech 2012-
+ * @license [New BSD License](http://www.opensource.org/licenses/bsd-license.php) 
+ * @package bootstrap.widgets.input
  */
+
 class TbTags extends CInputWidget
 {
 	/**
-	 * @var TbActiveForm when created via TbActiveForm, this attribute is set to the form that renders the widget
+	 * @var TbActiveForm when created via TbActiveForm
+	 *
+	 * This attribute is set to the form that renders the widget
 	 * @see TbActionForm->inputRow
 	 */
 	public $form;
+
 	/**
-	 * @var array suggestions for generating the list options:  array('A','B','C')
+	 * @var array 
+	 *
+	 * Suggestions for generating the list options:  array('A','B','C')
 	 *
 	 */
 	public $suggestions = array();
 
 	/**
-	 * @var string[] the JavaScript event handlers. The events are on the format:
+	 * @var string[] the JavaScript event handlers.
+	 * The events are on the format:
 	 *
 	 * <pre>
 	 *    // ...
@@ -28,19 +35,27 @@ class TbTags extends CInputWidget
 	 *    // ...
 	 * </pre>
 	 *
-	 * @see [https://github.com/maxwells/bootstrap-tags#overrideable-functions](https://github.com/maxwells/bootstrap-tags#overrideable-functions)
-	 *
+	 * @see <https://github.com/maxwells/bootstrap-tags#overrideable-functions>
 	 *
 	 */
+
 	public $events = array(
-		'whenAddingTag' => null, // whenAddingTag (tag:string) : anything external you'd like to do with the tag
-		'tagRemoved' => null,  // tagRemoved (tag:string) : find out which tag was removed by either presseing delete key or clicking the (x)
-		'definePopover' => null, // definePopover (tag:string) : must return the popover content for the tag that is being added. (eg "Content for [tag]")
-		'exclude' => null, // excludes (tag:string) : returns true if you want the tag to be excluded, false if allowed
-		'pressedReturn' => null, // pressedReturn (e:triggering event)
-		'pressedDelete' => null, // pressedDelete (e:triggering event)
-		'pressedDown' => null, // pressedDown (e:triggering event)
-		'pressedUp' => null, // pressedUp (e:triggering event)
+		// whenAddingTag (tag:string) : anything external you'd like to do with the tag
+		'whenAddingTag' => null,
+		// tagRemoved (tag:string) : find out which tag was removed by either presseing delete key or clicking the (x)
+		'tagRemoved'    => null,
+		// definePopover (tag:string) : must return the popover content for the tag that is being added. (eg "Content for [tag]")
+		'definePopover' => null,
+		// excludes (tag:string) : returns true if you want the tag to be excluded, false if allowed
+		'exclude'       => null,
+		// pressedReturn (e:triggering event)
+		'pressedReturn' => null,
+		// pressedDelete (e:triggering event)
+		'pressedDelete' => null,
+		// pressedDown (e:triggering event)
+		'pressedDown'   => null,
+		// pressedUp (e:triggering event)
+		'pressedUp'     => null,
 	);
 
 	/**
@@ -71,7 +86,8 @@ class TbTags extends CInputWidget
 	public $displayPopovers;
 
 	/**
-	 * @var string $tagClass what class the tag div will have for styling. Defaults to `btn-success`
+	 * @var string $tagClass what class the tag div will have for styling.
+	 * Defaults to `btn-success`
 	 */
 	public $tagClass = 'btn-success';
 
@@ -80,29 +96,32 @@ class TbTags extends CInputWidget
 	 */
 	public $promptText = 'Please, type in your tags...';
 
-
 	/**
 	 * @var array $options the array to configure the js component.
 	 */
 	protected $options = array();
 
 	/**
+	 *### .init()
+	 *
 	 * Initializes the widget.
 	 */
 	public function init()
 	{
 		$this->options = CMap::mergeArray(array(
-			'suggestions' => $this->suggestions,
-			'restrictTo' => $this->restrictTo,
-			'exclude' => $this->exclude,
+			'suggestions'     => $this->suggestions,
+			'restrictTo'      => $this->restrictTo,
+			'exclude'         => $this->exclude,
 			'displayPopovers' => $this->displayPopovers,
-			'tagClass' => $this->tagClass,
-			'tagData' => $this->tagData,
-			'popoverData' => $this->popoverData
+			'tagClass'        => $this->tagClass,
+			'tagData'         => $this->tagData,
+			'popoverData'     => $this->popoverData
 		), $this->options);
 	}
 
 	/**
+	 *### .run()
+	 *
 	 * Runs the widget.
 	 */
 	public function run()
@@ -114,15 +133,20 @@ class TbTags extends CInputWidget
 	}
 
 	/**
+	 *### .renderContent()
+	 *
 	 * Renders required HTML tags
-	 * @param $id
+	 *
+	 * @param integer $id
+	 * @param string $name
+	 * @return string with HTML tags
 	 */
 	public function renderContent($id, $name)
 	{
 
 		if ($this->hasModel())
 		{
-			if($this->form)
+			if ($this->form)
 				echo $this->form->hiddenField($this->model, $this->attribute);
 			else
 				echo CHtml::activeHiddenField($this->model, $this->attribute);
@@ -134,8 +158,13 @@ class TbTags extends CInputWidget
 	}
 
 	/**
-	 * Registers required client script for bootstrap select2. It is not used through bootstrap->registerPlugin
+	 *### .registerClientScript()
+	 *
+	 * Registers required client script for bootstrap select2.
+	 * It is not used through bootstrap->registerPlugin
 	 * in order to attach events if any
+	 *
+	 * @param string $id
 	 */
 	public function registerClientScript($id)
 	{

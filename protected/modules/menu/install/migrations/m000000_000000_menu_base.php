@@ -1,51 +1,74 @@
 <?php
-class m000000_000000_menu_base extends CDbMigration
+/**
+ * File Doc Comment
+ * Menu install migration
+ * Класс миграций для модуля Menu:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_menu_base extends YDbMigration
 {
+
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'menu';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'name' => 'varchar(300) NOT NULL',
-            'code' => 'string NOT NULL',
-            'description' => 'varchar(300) NOT NULL',
-            'status'=> "tinyint(3) unsigned NOT NULL DEFAULT '1'",
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $this->createTable(
+            '{{menu_menu}}',
+            array(
+                'id' => 'pk',
+                'name' => 'varchar(255) NOT NULL',
+                'code' => 'string NOT NULL',
+                'description' => 'varchar(255) NOT NULL',
+                'status'=> "integer NOT NULL DEFAULT '1'",
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("menu_code_unique",$tableName,"code", true);
-        $this->createIndex("menu_status",$tableName,"status", false);
+        //ix
+        $this->createIndex("ux_{{menu_menu}}_code", '{{menu_menu}}', "code", true);
+        $this->createIndex("ix_{{menu_menu}}_status", '{{menu_menu}}', "status", false);
 
-        $tableName = $db->tablePrefix.'menu_item';
-        $this->createTable($tableName, array(
+        /**
+         * menu_item:
+         **/
+        $this->createTable(
+            '{{menu_menu_item}}',
+            array(
                 'id' => 'pk',
                 'parent_id' => 'integer NOT NULL',
                 'menu_id' => 'integer NOT NULL',
-                'title' => 'string NOT NULL',
-                'href' => 'string NOT NULL',
-                'class' => 'string NOT NULL',
-                'title_attr' => 'string NOT NULL',
-                'before_link' => 'string NOT NULL',
-                'after_link' => 'string NOT NULL',
-                'target' => 'string NOT NULL',
-                'rel' => 'string NOT NULL',
-                'condition_name' => "string DEFAULT '0'",
-                'condition_denial' => "tinyint(4) DEFAULT '0'",
-                'sort' => "tinyint(3) unsigned NOT NULL DEFAULT '1'",
-                'status' => "tinyint(3) unsigned NOT NULL DEFAULT '1'",
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+                'regular_link' => "boolean NOT NULL DEFAULT '0'",
+                'title' => 'varchar(150) NOT NULL',
+                'href' => 'varchar(150) NOT NULL',
+                'class' => 'varchar(150) NOT NULL',
+                'title_attr' => 'varchar(150) NOT NULL',
+                'before_link' => 'varchar(150) NOT NULL',
+                'after_link' => 'varchar(150) NOT NULL',
+                'target' => 'varchar(150) NOT NULL',
+                'rel' => 'varchar(150) NOT NULL',
+                'condition_name' => "varchar(150) DEFAULT '0'",
+                'condition_denial' => "integer DEFAULT '0'",
+                'sort' => "integer NOT NULL DEFAULT '1'",
+                'status' => "integer NOT NULL DEFAULT '1'",
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("menu_item_menuid",$tableName,"menu_id", false);
-        $this->createIndex("menu_item_sort",$tableName,"sort", false);
-        $this->createIndex("menu_item_status",$tableName,"status", false);
+        $this->createIndex("ix_{{menu_menu_item}}_menu_id", '{{menu_menu_item}}', "menu_id", false);
+        $this->createIndex("ix_{{menu_menu_item}}_sort", '{{menu_menu_item}}', "sort", false);
+        $this->createIndex("ix_{{menu_menu_item}}_status", '{{menu_menu_item}}', "status", false);
 
-        $this->addForeignKey("menu_item_menu_fk",$tableName,'menu_id',$db->tablePrefix.'menu','id','CASCADE','CASCADE');
+        //fk
+        $this->addForeignKey("fk_{{menu_menu_item}}_menu_id", '{{menu_menu_item}}', 'menu_id', '{{menu_menu}}', 'id', 'CASCADE', 'CASCADE');
     }
  
+
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'menu_item');
-        $this->dropTable($db->tablePrefix.'menu');
+        $this->dropTableWithForeignKeys('{{menu_menu_item}}');
+        $this->dropTableWithForeignKeys('{{menu_menu}}');
     }
 }

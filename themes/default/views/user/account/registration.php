@@ -1,6 +1,6 @@
 <?php
-$this->pageTitle = Yii::t('user', 'Регистрация новго пользователя');
-$this->breadcrumbs = array('Регистрация новго пользователя');
+$this->pageTitle = Yii::t('user', 'Регистрация нового пользователя');
+$this->breadcrumbs = array('Регистрация нового пользователя');
 ?>
 
 <h1>Регистрация нового пользователя</h1>
@@ -42,11 +42,16 @@ $this->breadcrumbs = array('Регистрация новго пользоват
     </div>
 
 
-    <?php if ($module->showCaptcha && extension_loaded('gd')): ?>
+    <?php if ($module->showCaptcha && CCaptcha::checkRequirements()): ?>
         <div class="row">
             <?php echo $form->labelEx($model, 'verifyCode'); ?>
             <div>
-                <?php $this->widget('CCaptcha', array('showRefreshButton' => false)); ?>
+                <?php $this->widget('CCaptcha', array(
+                    'showRefreshButton' => true,
+                    'clickableImage' => true,
+                    'buttonLabel' => 'обновить',
+                    'buttonOptions' => array('class' => 'captcha-refresh-link'),
+                )); ?>
                 <?php echo $form->textField($model, 'verifyCode'); ?>
                 <?php echo $form->error($model, 'verifyCode'); ?>
             </div>

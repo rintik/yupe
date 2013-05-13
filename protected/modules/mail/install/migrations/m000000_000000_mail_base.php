@@ -1,45 +1,66 @@
 <?php
-class m000000_000000_mail_base extends CDbMigration
+/**
+ * File Doc Comment
+ * Mail install migration
+ * Класс миграций для модуля Mail:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_mail_base extends YDbMigration
 {
+
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'mail_event';
-        $this->createTable($tableName, array(
-                'id' => 'pk',
-                'code' => 'string NOT NULL',
-                'name' => 'string NOT NULL',
+        /**
+         * mail_event:
+         **/
+        $this->createTable(
+            '{{mail_mail_event}}', array(
+                    'id'          => 'pk',
+                    'code'        => 'varchar(150) NOT NULL',
+                    'name'        => 'varchar(150) NOT NULL',
+                    'description' => 'text',
+            ), $this->getOptions()
+        );
+
+        $this->createIndex("ux_{{mail_mail_event}}_code", '{{mail_mail_event}}', "code", true);
+
+        /**
+         * mail_template:
+         **/
+        $this->createTable(
+           '{{mail_mail_template}}', array(
+                'id'          => 'pk',
+                'code'        => 'varchar(150) NOT NULL',
+                'event_id'    => 'integer NOT NULL',
+                'name'        => 'varchar(150) NOT NULL',
                 'description' => 'text',
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+                'from'        => 'varchar(150) NOT NULL',
+                'to'          => 'varchar(150) NOT NULL',
+                'theme'       => 'text NOT NULL',
+                'body'        => 'text NOT NULL',
+                'status'      => "integer NOT NULL DEFAULT '1'",
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("mail_event_code_unique",$tableName,"code", true);
+        //ix
+        $this->createIndex("ux_{{mail_mail_template}}_code", '{{mail_mail_template}}', "code", true);
+        $this->createIndex("ix_{{mail_mail_template}}_status", '{{mail_mail_template}}', "status", false);
+        $this->createIndex("ix_{{mail_mail_template}}_event_id", '{{mail_mail_template}}', "event_id", false);
 
-        $tableName = $db->tablePrefix.'mail_template';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'code' => 'string NOT NULL',
-            'event_id' => 'integer NOT NULL',
-            'name' => 'string NOT NULL',
-            'description' => 'text',
-            'from' => 'string NOT NULL',
-            'to' => 'string NOT NULL',
-            'theme' => 'tinytext NOT NULL',
-            'body' => 'text NOT NULL',
-            'status' => "tinyint(3) NOT NULL DEFAULT '1'",
-
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
-
-        $this->createIndex("mail_template_unique",$tableName,"code", true);
-        $this->createIndex("mail_template_status",$tableName,"status", false);
-        $this->createIndex("mail_template_event",$tableName,"event_id", false);
-        $this->addForeignKey("mail_event_template_fk",$tableName,'event_id',$db->tablePrefix.'mail_event','id','CASCADE','CASCADE');
-
+        //fk
+        $this->addForeignKey("fk_{{mail_mail_template}}_event_id", '{{mail_mail_template}}', 'event_id', '{{mail_mail_event}}', 'id', 'CASCADE', 'NO ACTION');
     }
  
+
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'mail_template');
-        $this->dropTable($db->tablePrefix.'mail_event');
+        $this->dropTableWithForeignKeys('{{mail_mail_template}}');
+        $this->dropTableWithForeignKeys('{{mail_mail_event}}');
     }
 }

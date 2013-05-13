@@ -6,18 +6,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'type'                   => 'vertical',
     'htmlOptions'            => array('class' => 'well'),
     'inlineErrors'           => true,
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <div class="alert alert-info">
-        <?php echo Yii::t('contentblock', 'Поля, отмеченные'); ?>
+        <?php echo Yii::t('ContentBlockModule.contentblock', 'Поля, отмеченные'); ?>
         <span class="required">*</span>
-        <?php echo Yii::t('contentblock', 'обязательны.'); ?>
+        <?php echo Yii::t('ContentBlockModule.contentblock', 'обязательны.'); ?>
     </div>
 
     <?php echo $form->errorSummary($model); ?>
@@ -31,22 +24,18 @@ Yii::app()->clientScript->registerScript('fieldset', "
         </div>
     </div>
     <div class='control-group <?php echo $model->hasErrors("name") ? "error" : ""; ?>'>
-        <?php echo $form->textFieldRow($model, 'name', array('class' => 'span7', 'maxlength' => 300)); ?>
+        <?php echo $form->textFieldRow($model, 'name', array('class' => 'span7', 'maxlength' => 250)); ?>
     </div>
     <div class='control-group <?php echo $model->hasErrors("code") ? "error" : ""; ?>'>
-        <?php echo $form->textFieldRow($model, 'code', array('class' => 'span7', 'maxlength' => 300)); ?>
+        <?php echo $form->textFieldRow($model, 'code', array('class' => 'span7', 'maxlength' => 100)); ?>
     </div>
     <div class="row-fluid control-group <?php echo $model->hasErrors('content') ? 'error' : ''; ?>">
         <div class="span12">
             <?php echo $form->labelEx($model, 'content'); ?>
-            <?php $this->widget(Yii::app()->getModule('yupe')->editor, array(
+            <?php $this->widget($this->yupe->editor, array(
                 'model'       => $model,
                 'attribute'   => 'content',
-                'options'     => array(
-                    'toolbar'     => 'main',
-                    'imageUpload' => Yii::app()->baseUrl . '/index.php/yupe/backend/AjaxFileUpload/',
-                ),
-                'htmlOptions' => array('rows' => 20, 'cols' => 6),
+                'options'     => $this->module->editorOptions,
             )); ?>
             <?php echo $form->error($model, 'content'); ?>
         </div>
@@ -54,15 +43,11 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <div class="row-fluid control-group <?php echo $model->hasErrors('description') ? 'error' : ''; ?>">
         <div class="span12">
             <?php echo $form->labelEx($model, 'description'); ?>
-            <?php $this->widget(Yii::app()->getModule('yupe')->editor, array(
+            <?php $this->widget($this->yupe->editor, array(
                 'model'       => $model,
                 'attribute'   => 'description',
-                'options'     => array(
-                    'toolbar'     => 'main',
-                    'imageUpload' => Yii::app()->baseUrl . '/index.php/yupe/backend/AjaxFileUpload/',
-                ),
-                'htmlOptions' => array('rows' => 20, 'cols' => 6),
-            ))?>
+                'options'     => $this->module->editorOptions,
+            )); ?>
             <?php echo $form->error($model, 'description'); ?>
         </div>
     </div>
@@ -70,12 +55,12 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
         'type'       => 'primary',
-        'label'      => $model->isNewRecord ? Yii::t('contentblock', 'Добавить блок и продолжить') : Yii::t('contentblock', 'Сохранить блок и продолжить'),
+        'label'      => $model->isNewRecord ? Yii::t('ContentBlockModule.contentblock', 'Добавить блок и продолжить') : Yii::t('ContentBlockModule.contentblock', 'Сохранить блок и продолжить'),
     )); ?>
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'  => 'submit',
         'htmlOptions' => array('name' => 'submit-type', 'value' => 'index'),
-        'label'       => $model->isNewRecord ? Yii::t('contentblock', 'Добавить блок и закрыть') : Yii::t('contentblock', 'Сохранить блок и закрыть'),
+        'label'       => $model->isNewRecord ? Yii::t('ContentBlockModule.contentblock', 'Добавить блок и закрыть') : Yii::t('ContentBlockModule.contentblock', 'Сохранить блок и закрыть'),
     )); ?>
 
 <?php $this->endWidget(); ?>

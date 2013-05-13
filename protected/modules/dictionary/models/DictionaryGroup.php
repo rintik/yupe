@@ -22,6 +22,7 @@ class DictionaryGroup extends YModel
 {
     /**
      * Returns the static model of the specified AR class.
+     * @param string $className
      * @return DictionaryGroup the static model class
      */
     public static function model($className = __CLASS__)
@@ -34,7 +35,7 @@ class DictionaryGroup extends YModel
      */
     public function tableName()
     {
-        return '{{dictionary_group}}';
+        return '{{dictionary_dictionary_group}}';
     }
 
     /**
@@ -45,10 +46,9 @@ class DictionaryGroup extends YModel
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('code', 'required'),
-            array('code', 'length', 'max' => 50),
-            array('name', 'length', 'max' => 150),
-            array('description', 'length', 'max' => 300),
+            array('code, name', 'required'),
+            array('code', 'length', 'max' => 100),
+            array('name, description', 'length', 'max' => 250),
             array('create_user_id, update_user_id', 'length', 'max' => 10),
             array('code', 'YSLugValidator'),
             array('code', 'unique'),
@@ -79,14 +79,14 @@ class DictionaryGroup extends YModel
     public function attributeLabels()
     {
         return array(
-            'id'             => Yii::t('dictionary', 'id'),
-            'code'           => Yii::t('dictionary', 'Код'),
-            'name'           => Yii::t('dictionary', 'Название'),
-            'description'    => Yii::t('dictionary', 'Описание'),
-            'creation_date'  => Yii::t('dictionary', 'Дата создания'),
-            'update_date'    => Yii::t('dictionary', 'Дата изменения'),
-            'create_user_id' => Yii::t('dictionary', 'Создал'),
-            'update_user_id' => Yii::t('dictionary', 'Изменил'),
+            'id'             => Yii::t('DictionaryModule.dictionary', 'id'),
+            'code'           => Yii::t('DictionaryModule.dictionary', 'Код'),
+            'name'           => Yii::t('DictionaryModule.dictionary', 'Название'),
+            'description'    => Yii::t('DictionaryModule.dictionary', 'Описание'),
+            'creation_date'  => Yii::t('DictionaryModule.dictionary', 'Дата создания'),
+            'update_date'    => Yii::t('DictionaryModule.dictionary', 'Дата изменения'),
+            'create_user_id' => Yii::t('DictionaryModule.dictionary', 'Создал'),
+            'update_user_id' => Yii::t('DictionaryModule.dictionary', 'Изменил'),
         );
     }
 
@@ -116,7 +116,7 @@ class DictionaryGroup extends YModel
     public function beforeSave()
     {
         $this->update_user_id = Yii::app()->user->getId();
-        $this->update_date    = new CDbExpression('NOW()');
+        $this->update_date    = YDbMigration::expression('NOW()');
 
         if ($this->isNewRecord)
         {

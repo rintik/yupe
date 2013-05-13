@@ -90,7 +90,7 @@ class MenuitemController extends YBackController
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
         else
-            throw new CHttpException(400, Yii::t('menu', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
+            throw new CHttpException(400, Yii::t('MenuModule.menu', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
     }
 
     /**
@@ -106,6 +106,27 @@ class MenuitemController extends YBackController
     }
 
     /**
+     * Обновление дерева пунктов меню в завимости от родителя.
+     */
+    public function actionDynamicParent()
+    {
+        if (Yii::app()->request->isAjaxRequest && isset($_POST['MenuItem']))
+        {
+            $model = new MenuItem('search');
+            $model->attributes = $_POST['MenuItem'];
+            if ($model->menu_id)
+            {
+                if (isset($_GET['id']))
+                    $model->id = $_GET['id'];
+                $data = $model->parentTree;
+                foreach ($data as $value => $name)
+                    echo CHtml::tag('option', array('value' => $value), $name, true);
+            }
+        }
+        Yii::app()->end();
+    }
+
+    /**
      * Возвращает модель по указанному идентификатору
      * Если модель не будет найдена - возникнет HTTP-исключение.
      * @param integer идентификатор нужной модели
@@ -114,7 +135,7 @@ class MenuitemController extends YBackController
     {
         $model = MenuItem::model()->findByPk($id);
         if ($model === null)
-            throw new CHttpException(404, Yii::t('menu', 'Запрошенная страница не найдена!'));
+            throw new CHttpException(404, Yii::t('MenuModule.menu', 'Запрошенная страница не найдена!'));
         return $model;
     }
 

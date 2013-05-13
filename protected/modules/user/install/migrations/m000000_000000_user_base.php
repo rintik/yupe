@@ -1,63 +1,91 @@
 <?php
-class m000000_000000_user_base extends CDbMigration
+/**
+ * FileDocComment
+ * User install migration
+ * Класс миграций для модуля User:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_user_base extends YDbMigration
 {
+    /**
+     * Функция настройки и создания таблицы:
+     *
+     * @return null
+     **/
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'user';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'creation_date' => 'datetime NOT NULL',
-            'change_date'   => 'datetime NOT NULL',
-            'first_name'    => 'string DEFAULT NULL',
-            'middle_name'   => 'string DEFAULT NULL',
-            'last_name'     => 'string DEFAULT NULL',
-            'nick_name'     => 'string NOT NULL',
-            'email'         => 'string NOT NULL',
-            'gender'        => "boolean NOT NULL DEFAULT '0'",
-            'birth_date'    => 'date DEFAULT NULL',
-            'site'          => "string NOT NULL DEFAULT ''",
-            'about'         => "string NOT NULL DEFAULT ''",
-            'location'      => "string NOT NULL DEFAULT ''",
-            'online_status' => "string NOT NULL DEFAULT ''",
-            'password'      => "char(32) NOT NULL",
-            'salt'          => "char(32) NOT NULL",
-            'status'        => "tinyint(1) NOT NULL DEFAULT '2'",
-            'access_level'  => "tinyint(1) NOT NULL DEFAULT '0'",
-            'last_visit'    => 'datetime DEFAULT NULL',
-            'registration_date' => 'datetime NOT NULL',
-            'registration_ip' => 'string NOT NULL',
-            'activation_ip'   => 'string NOT NULL',
-            'avatar'          => 'string DEFAULT NULL',
-            'use_gravatar'    => "boolean NOT NULL DEFAULT '1'",
-            'activate_key'    => 'char(32) NOT NULL',
-            'email_confirm'   => "boolean NOT NULL DEFAULT '0'",
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $this->createTable(
+            '{{user_user}}',
+            array(
+                'id' => 'pk',
+                'creation_date' => 'datetime NOT NULL',
+                'change_date'   => 'datetime NOT NULL',
+                'first_name'    => 'varchar(250) DEFAULT NULL',
+                'middle_name'   => 'varchar(250) DEFAULT NULL',
+                'last_name'     => 'varchar(250) DEFAULT NULL',
+                'nick_name'     => 'varchar(250) NOT NULL',
+                'email'         => 'varchar(250) NOT NULL',
+                'gender'        => "boolean NOT NULL DEFAULT '0'",
+                'birth_date'    => 'date DEFAULT NULL',
+                'site'          => "varchar(250) NOT NULL DEFAULT ''",
+                'about'         => "varchar(250) NOT NULL DEFAULT ''",
+                'location'      => "varchar(250) NOT NULL DEFAULT ''",
+                'online_status' => "varchar(250) NOT NULL DEFAULT ''",
+                'password'      => "char(32) NOT NULL",
+                'salt'          => "char(32) NOT NULL",
+                'status'        => "integer NOT NULL DEFAULT '2'",
+                'access_level'  => "integer NOT NULL DEFAULT '0'",
+                'last_visit'    => 'datetime DEFAULT NULL',
+                'registration_date' => 'datetime NOT NULL',
+                'registration_ip' => 'varchar(50) NOT NULL',
+                'activation_ip'   => 'varchar(50) NOT NULL',
+                'avatar'          => 'varchar(150) DEFAULT NULL',
+                'use_gravatar'    => "boolean NOT NULL DEFAULT '1'",
+                'activate_key'    => 'char(32) NOT NULL',
+                'email_confirm'   => "boolean NOT NULL DEFAULT '0'",
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("user_nickname_unique",$tableName,"nick_name", true);
-        $this->createIndex("user_email_unique",$tableName,"email", true);
-        $this->createIndex("user_status_index",$tableName,"status", false);
-        $this->createIndex("user_email_confirm",$tableName,"email_confirm", false);
+        //ix
+        $this->createIndex("ux_{{user_user}}_nick_name", '{{user_user}}', "nick_name", true);
+        $this->createIndex("ux_{{user_user}}_email", '{{user_user}}', "email", true);
+        $this->createIndex("ix_{{user_user}}_status", '{{user_user}}', "status", false);
+        $this->createIndex("ix_{{user_user}}_email_confirm", '{{user_user}}', "email_confirm", false);
 
-        $tableName = $db->tablePrefix.'recovery_password';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'user_id' => 'integer NOT NULL',
-            'creation_date' => 'datetime NOT NULL',
-            'code' =>  'char(32) NOT NULL',
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        // recovery password table
+        $this->createTable(
+            '{{user_recovery_password}}',
+            array(
+                'id' => 'pk',
+                'user_id' => 'integer NOT NULL',
+                'creation_date' => 'datetime NOT NULL',
+                'code' =>  'char(32) NOT NULL',
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("user_recovery_code",$tableName,"code", true);
-        $this->createIndex("user_recovery_userid",$tableName,"user_id", false);
-
-        $this->addForeignKey("user_recovery_uid_fk",$tableName,'user_id',$db->tablePrefix.'user','id','CASCADE','CASCADE');
-
+        $this->createIndex("ux_{{user_recovery_password}}_code", '{{user_recovery_password}}', "code", true);
+        $this->createIndex("ix_{{user_recovery_password}}_user_id", '{{user_recovery_password}}', "user_id", false);
+        
+        //fk
+        if (!$this->isSQLite())
+            $this->addForeignKey("fk_{{user_recovery_password}}_user_id", '{{user_recovery_password}}', 'user_id', '{{user_user}}', 'id', 'CASCADE', 'NO ACTION');
     }
  
+    /**
+     * Функция удаления таблицы:
+     *
+     * @return null
+     **/
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'user_recovery');
-        $this->dropTable($db->tablePrefix.'user');
+        $this->dropTableWithForeignKeys('{{user_recovery_password}}');
+        $this->dropTableWithForeignKeys('{{user_user}}');
     }
 }

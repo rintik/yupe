@@ -37,7 +37,7 @@ class Settings extends YModel
      */
     public function tableName()
     {
-        return '{{settings}}';
+        return '{{yupe_settings}}';
     }
 
     /**
@@ -47,7 +47,8 @@ class Settings extends YModel
     {
         return array(
             array('module_id, param_name', 'required'),
-            array('module_id, param_name, param_value', 'length', 'max' => 150),
+            array('module_id, param_name', 'length', 'max' => 100),
+            array('param_value', 'length', 'max' => 255),
             array('user_id', 'numerical', 'integerOnly' => true),
             //array('module_id','match','pattern' => '/^[a-zA-Z0-9_\-]+$/'),
             //array('param_name, param_value','match','pattern' => '/^[a-zA-Z0-9_\-]+$/'),
@@ -57,7 +58,7 @@ class Settings extends YModel
 
     public function beforeSave()
     {
-        $this->change_date = new CDbExpression('NOW()');
+        $this->change_date = YDbMigration::expression('NOW()');
 
         if ($this->isNewRecord)
             $this->creation_date = $this->change_date;
@@ -86,13 +87,13 @@ class Settings extends YModel
     public function attributeLabels()
     {
         return array(
-            'id'            => Yii::t('settings', 'ID'),
-            'module_id'     => Yii::t('settings', 'Модуль'),
-            'param_name'    => Yii::t('settings', 'Имя парамметра'),
-            'param_value'   => Yii::t('settings', 'Значение парамметра'),
-            'creation_date' => Yii::t('settings', 'Дата создания'),
-            'change_date'   => Yii::t('settings', 'Дата изменения'),
-            'user_id'       => Yii::t('settings', 'Пользователь'),
+            'id'            => Yii::t('YupeModule.yupe', 'ID'),
+            'module_id'     => Yii::t('YupeModule.yupe', 'Модуль'),
+            'param_name'    => Yii::t('YupeModule.yupe', 'Имя параметра'),
+            'param_value'   => Yii::t('YupeModule.yupe', 'Значение параметра'),
+            'creation_date' => Yii::t('YupeModule.yupe', 'Дата создания'),
+            'change_date'   => Yii::t('YupeModule.yupe', 'Дата изменения'),
+            'user_id'       => Yii::t('YupeModule.yupe', 'Пользователь'),
         );
     }
 

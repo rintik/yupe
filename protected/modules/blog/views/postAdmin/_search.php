@@ -1,16 +1,22 @@
 <?php
-$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'action'      => Yii::app()->createUrl($this->route),
-    'method'      => 'get',
-    'type'        => 'vertical',
-    'htmlOptions' => array('class' => 'well'),
-));
+/**
+ * Отображение для postAdmin/_search:
+ * 
+ *   @category YupeView
+ *   @package  YupeCMS
+ *   @author   Yupe Team <team@yupe.ru>
+ *   @license  https://github.com/yupe/yupe/blob/master/LICENSE BSD
+ *   @link     http://yupe.ru
+ **/
+$form = $this->beginWidget(
+    'bootstrap.widgets.TbActiveForm', array(
+        'action'      => Yii::app()->createUrl($this->route),
+        'method'      => 'get',
+        'type'        => 'vertical',
+        'htmlOptions' => array('class' => 'well'),
+    )
+);
 
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
 ?>
 
     <fieldset class="inline">
@@ -19,16 +25,19 @@ Yii::app()->clientScript->registerScript('fieldset', "
                 <?php echo $form->textFieldRow($model, 'id', array('class' => 'popover-help', 'maxlength' => 10, 'size' => 60, 'data-original-title' => $model->getAttributeLabel('id'), 'data-content' => $model->getAttributeDescription('id'))); ?>
             </div>
             <div class="span3">
-                <?php echo $form->dropDownListRow($model, 'blog_id', CHtml::listData(Blog::model()->findAll(), 'id', 'name'), array('empty'=>Yii::t('blog', 'выберите блог'), 'class' => 'popover-help', 'data-original-title' => $model->getAttributeLabel('blog_id'), 'data-content' => $model->getAttributeDescription('blog_id'))); ?>
+                <?php echo $form->dropDownListRow($model, 'blog_id', CHtml::listData(Blog::model()->findAll(), 'id', 'name'), array('empty'=>Yii::t('BlogModule.blog', 'выберите блог'), 'class' => 'popover-help', 'data-original-title' => $model->getAttributeLabel('blog_id'), 'data-content' => $model->getAttributeDescription('blog_id'))); ?>
             </div>
             <div class="span3">
                 <div class="popover-help" data-original-title='<?php echo $model->getAttributeLabel('publish_date'); ?>' data-content='<?php echo $model->getAttributeDescription('publish_date'); ?>'>
                     <?php echo $form->labelEx($model, 'publish_date'); ?>
-                    <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-                        'model'     => $model,
-                        'attribute' => 'publish_date',
-                        'options'   => array('dateFormat' => 'yy-mm-dd'),
-                    )); ?>
+                    <?php
+                    $this->widget(
+                        'zii.widgets.jui.CJuiDatePicker', array(
+                            'model'     => $model,
+                            'attribute' => 'publish_date',
+                            'options'   => array('dateFormat' => 'yy-mm-dd'),
+                        )
+                    ); ?>
                 </div>
             </div>
             <?php /*
@@ -87,11 +96,14 @@ Yii::app()->clientScript->registerScript('fieldset', "
         </div>
     </fieldset>
 
-    <?php $this->widget('bootstrap.widgets.TbButton', array(
-        'type'        => 'primary',
-        'encodeLabel' => false,
-        'buttonType'  => 'submit',
-        'label'       => '<i class="icon-search icon-white">&nbsp;</i> ' . Yii::t('blog', 'Искать запись'),
-    )); ?>
+    <?php
+    $this->widget(
+        'bootstrap.widgets.TbButton', array(
+            'type'        => 'primary',
+            'encodeLabel' => false,
+            'buttonType'  => 'submit',
+            'label'       => '<i class="icon-search icon-white">&nbsp;</i> ' . Yii::t('BlogModule.blog', 'Искать запись'),
+        )
+    ); ?>
 
 <?php $this->endWidget(); ?>

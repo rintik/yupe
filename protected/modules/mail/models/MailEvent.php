@@ -1,9 +1,20 @@
 <?php
+/**
+ * MailEvent model class
+ * Класс модели MailEvent
+ *
+ * @category YupeModel
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
 
 /**
  * This is the model class for table "mail_event".
  *
  * The followings are the available columns in table 'mail_event':
+ *
  * @property string $id
  * @property string $code
  * @property string $name
@@ -11,12 +22,23 @@
  *
  * The followings are the available model relations:
  * @property MailTemplate[] $mailTemplates
- */
+ *
+ * MailEvent model class
+ * Класс модели MailEvent
+ *
+ * @category YupeModel
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
 class MailEvent extends YModel
 {
     /**
      * Returns the static model of the specified AR class.
+     *
      * @param string $className active record class name.
+     *
      * @return MailEvent the static model class
      */
     public static function model($className = __CLASS__)
@@ -25,14 +47,18 @@ class MailEvent extends YModel
     }
 
     /**
+     * Получаем название таблицы:
+     *
      * @return string the associated database table name
      */
     public function tableName()
     {
-        return '{{mail_event}}';
+        return '{{mail_mail_event}}';
     }
 
     /**
+     * Получаем правила валидации:
+     *
      * @return array validation rules for model attributes.
      */
     public function rules()
@@ -53,6 +79,8 @@ class MailEvent extends YModel
     }
 
     /**
+     * Получаем свзи данной таблицы:
+     *
      * @return array relational rules.
      */
     public function relations()
@@ -65,20 +93,36 @@ class MailEvent extends YModel
     }
 
     /**
+     * Получаем атрибуты меток полей таблицы:
+     *
      * @return array customized attribute labels (name=>label)
      */
     public function attributeLabels()
     {
         return array(
-            'id'          => Yii::t('mail', 'ID'),
-            'code'        => Yii::t('mail', 'Символьный код'),
-            'name'        => Yii::t('mail', 'Название'),
-            'description' => Yii::t('mail', 'Описание'),
+            'id'          => Yii::t('MailModule.mail', 'ID'),
+            'code'        => Yii::t('MailModule.mail', 'Символьный код'),
+            'name'        => Yii::t('MailModule.mail', 'Название'),
+            'description' => Yii::t('MailModule.mail', 'Описание'),
         );
     }
 
     /**
+     * Получение короткого описания:
+     *
+     * @return string short decription
+     **/
+    public function getShortDescription()
+    {
+        if (strlen($this->description) <= 100)
+            return $this->description;
+        else
+            return substr($this->description, 0, 100) . " ...";
+    }
+
+    /**
      * Retrieves a list of models based on the current search/filter conditions.
+     *
      * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
      */
     public function search()

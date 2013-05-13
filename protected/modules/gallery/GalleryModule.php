@@ -1,55 +1,56 @@
 <?php
 class GalleryModule extends YWebModule
 {
-
     public function getDependencies()
     {
         return array(
             'user',
             'category',
+            'image'
         );
     }
 
     public function getParamsLabels()
     {
         return array(
-            'adminMenuOrder' => Yii::t('gallery', 'Порядок следования в меню'),
+            'adminMenuOrder' => Yii::t('GalleryModule.gallery', 'Порядок следования в меню'),
+            'editor'         => Yii::t('GalleryModule.gallery', 'Визуальный редактор'),
         );
     }
 
     public  function getVersion()
     {
-        return Yii::t('gallery', '0.1');
+        return Yii::t('GalleryModule.gallery', '0.1');
     }
 
     public function getCategory()
     {
-        return Yii::t('gallery', 'Сервисы');
+        return Yii::t('GalleryModule.gallery', 'Контент');
     }   
 
     public function getName()
     {
-        return Yii::t('gallery', 'Галереи изображений');
+        return Yii::t('GalleryModule.gallery', 'Галереи изображений');
     }
 
     public function getDescription()
     {
-        return Yii::t('gallery', 'Модуль для простых галерей изображений');
+        return Yii::t('GalleryModule.gallery', 'Модуль для простых галерей изображений');
     }
 
     public function getAuthor()
     {
-        return Yii::t('gallery', 'yupe team');
+        return Yii::t('GalleryModule.gallery', 'yupe team');
     }
 
     public function getAuthorEmail()
     {
-        return Yii::t('gallery', 'team@yupe.ru');
+        return Yii::t('GalleryModule.gallery', 'team@yupe.ru');
     }
 
     public function getUrl()
     {
-        return Yii::t('gallery', 'http://yupe.ru');
+        return Yii::t('GalleryModule.gallery', 'http://yupe.ru');
     }
 
     public function getIcon()
@@ -67,11 +68,19 @@ class GalleryModule extends YWebModule
         ));
     }
 
-     public function getNavigation()
+    public function getEditableParams()
     {
         return array(
-            array('icon' => 'list-alt', 'label' => Yii::t('gallery', 'Список галерей'), 'url' => array('/gallery/default/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('gallery', 'Добавить галерею'), 'url' => array('/gallery/default/create')),
+            'adminMenuOrder',
+            'editor'        => Yii::app()->getModule('yupe')->editors,
+        );
+    }
+
+    public function getNavigation()
+    {
+        return array(
+            array('icon' => 'list-alt', 'label' => Yii::t('GalleryModule.gallery', 'Список галерей'), 'url' => array('/gallery/default/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('GalleryModule.gallery', 'Добавить галерею'), 'url' => array('/gallery/default/create')),
         );
     }
 }

@@ -12,13 +12,13 @@
  */
 class ContentBlock extends YModel
 {
-
     const SIMPLE_TEXT = 1;
     const PHP_CODE    = 2;
     const HTML_TEXT   = 3;
 
     /**
      * Returns the static model of the specified AR class.
+     * @param string $className
      * @return ContentBlock the static model class
      */
     public static function model($className = __CLASS__)
@@ -31,7 +31,7 @@ class ContentBlock extends YModel
      */
     public function tableName()
     {
-        return '{{content_block}}';
+        return '{{contentblock_content_block}}';
     }
 
     /**
@@ -44,10 +44,12 @@ class ContentBlock extends YModel
             array('name, code', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
             array('name, code, content, type', 'required'),
             array('type', 'numerical', 'integerOnly' => true),
+            array('type', 'length', 'max' => 11),
             array('type', 'in', 'range' => array_keys($this->types)),
-            array('name, code', 'length', 'max' => 50),
-            array('description', 'length', 'max' => 300),
-            array('code', 'YSLugValidator', 'message' => Yii::t('contentblock', 'Неверный формат поля "{attribute}" допустимы только буквы, цифры и символ подчеркивания, от 2 до 50 символов')),
+            array('name', 'length', 'max' => 250),
+            array('code', 'length', 'max' => 100),
+            array('description', 'length', 'max' => 255),
+            array('code', 'YSLugValidator', 'message' => Yii::t('ContentBlockModule.contentblock', 'Неверный формат поля "{attribute}" допустимы только буквы, цифры и символ подчеркивания, от 2 до 50 символов')),
             array('code', 'unique'),
             array('id, name, code, type, content, description', 'safe', 'on' => 'search'),
         );
@@ -59,12 +61,12 @@ class ContentBlock extends YModel
     public function attributeLabels()
     {
         return array(
-            'id'          => Yii::t('contentblock', 'id'),
-            'name'        => Yii::t('contentblock', 'Название'),
-            'code'        => Yii::t('contentblock', 'Символьный код'),
-            'type'        => Yii::t('contentblock', 'Тип'),
-            'content'     => Yii::t('contentblock', 'Контент'),
-            'description' => Yii::t('contentblock', 'Описание'),
+            'id'          => Yii::t('ContentBlockModule.contentblock', 'id'),
+            'name'        => Yii::t('ContentBlockModule.contentblock', 'Название'),
+            'code'        => Yii::t('ContentBlockModule.contentblock', 'Символьный код'),
+            'type'        => Yii::t('ContentBlockModule.contentblock', 'Тип'),
+            'content'     => Yii::t('ContentBlockModule.contentblock', 'Контент'),
+            'description' => Yii::t('ContentBlockModule.contentblock', 'Описание'),
         );
     }
 
@@ -90,15 +92,15 @@ class ContentBlock extends YModel
     public function getTypes()
     {
         return array(
-            self::SIMPLE_TEXT => Yii::t('contentblock', 'Простой текст'),
-            self::PHP_CODE    => Yii::t('contentblock', 'Исполняемый PHP код'),
-            self::HTML_TEXT   => Yii::t('contentblock', 'HTML код'),
+            self::SIMPLE_TEXT => Yii::t('ContentBlockModule.contentblock', 'Простой текст'),
+            self::PHP_CODE    => Yii::t('ContentBlockModule.contentblock', 'Исполняемый PHP код'),
+            self::HTML_TEXT   => Yii::t('ContentBlockModule.contentblock', 'HTML код'),
         );
     }
 
     public function getType()
     {
         $data = $this->types;
-        return isset($data[$this->type]) ? $data[$this->type] : Yii::t('contentblock', '*неизвестный тип*');
+        return isset($data[$this->type]) ? $data[$this->type] : Yii::t('ContentBlockModule.contentblock', '*неизвестный тип*');
     }
 }

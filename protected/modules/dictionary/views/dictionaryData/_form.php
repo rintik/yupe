@@ -6,18 +6,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'type'                   => 'vertical',
     'htmlOptions'            => array('class' => 'well'),
     'inlineErrors'           => true,
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <div class="alert alert-info">
-        <?php echo Yii::t('dictionary', 'Поля, отмеченные'); ?>
+        <?php echo Yii::t('DictionaryModule.dictionary', 'Поля, отмеченные'); ?>
         <span class="required">*</span>
-        <?php echo Yii::t('dictionary', 'обязательны.'); ?>
+        <?php echo Yii::t('DictionaryModule.dictionary', 'обязательны.'); ?>
     </div>
 
     <?php echo $form->errorSummary($model); ?>
@@ -37,14 +30,10 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <div class="row-fluid control-group <?php echo $model->hasErrors('description') ? 'error' : ''; ?>">
         <div class="popover-help" data-original-title='<?php echo $model->getAttributeLabel('description'); ?>' data-content='<?php echo $model->getAttributeDescription('description'); ?>'>
             <?php echo $form->labelEx($model, 'description'); ?>
-            <?php $this->widget(Yii::app()->getModule('yupe')->editor, array(
+            <?php $this->widget($this->module->editor, array(
                 'model'       => $model,
                 'attribute'   => 'description',
-                'options'     => array(
-                    'toolbar'     => 'main',
-                    'imageUpload' => Yii::app()->baseUrl . '/index.php/yupe/backend/AjaxFileUpload/',
-                ),
-                'htmlOptions' => array('rows' => 20, 'cols' => 6),
+                'options'     => $this->module->editorOptions,
             )); ?>
         </div>
     </div>
@@ -55,12 +44,12 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
         'type'       => 'primary',
-        'label'      => $model->isNewRecord ? Yii::t('dictionary', 'Добавить значение и продолжить') : Yii::t('dictionary', 'Сохранить значение и продолжить'),
+        'label'      => $model->isNewRecord ? Yii::t('DictionaryModule.dictionary', 'Добавить значение и продолжить') : Yii::t('DictionaryModule.dictionary', 'Сохранить значение и продолжить'),
     )); ?>
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'  => 'submit',
         'htmlOptions' => array('name' => 'submit-type', 'value' => 'index'),
-        'label'       => $model->isNewRecord ? Yii::t('dictionary', 'Добавить значение и закрыть') : Yii::t('dictionary', 'Сохранить значение и закрыть'),
+        'label'       => $model->isNewRecord ? Yii::t('DictionaryModule.dictionary', 'Добавить значение и закрыть') : Yii::t('DictionaryModule.dictionary', 'Сохранить значение и закрыть'),
     )); ?>
 
 <?php $this->endWidget(); ?>

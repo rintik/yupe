@@ -6,18 +6,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'type'                   => 'vertical',
     'htmlOptions'            => array('class' => 'well'),
     'inlineErrors'           => true,
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <div class="alert alert-info">
-        <?php echo Yii::t('gallery', 'Поля, отмеченные'); ?>
+        <?php echo Yii::t('GalleryModule.gallery', 'Поля, отмеченные'); ?>
         <span class="required">*</span>
-        <?php echo Yii::t('gallery', 'обязательны.'); ?>
+        <?php echo Yii::t('GalleryModule.gallery', 'обязательны.'); ?>
     </div>
 
     <?php echo $form->errorSummary($model); ?>
@@ -25,18 +18,17 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <div class='control-group <?php echo $model->hasErrors("name") ? "error" : ""; ?>'>
         <?php echo $form->textFieldRow($model, 'name', array('class' => 'span7', 'maxlength' => 300)); ?>
     </div>
+    <div class='control-group <?php echo $model->hasErrors("owner") ? "error" : ""; ?>'>
+        <?php echo $form->dropDownListRow($model, 'owner', $model->usersList); ?>
+    </div>
     <div class="row-fluid control-group <?php echo $model->hasErrors('description') ? 'error' : ''; ?>">
         <div class="span12">
             <?php echo $form->labelEx($model, 'description'); ?>
-            <?php $this->widget(Yii::app()->getModule('yupe')->editor, array(
+            <?php $this->widget($this->module->editor, array(
                 'model'       => $model,
                 'attribute'   => 'description',
-                'options'     => array(
-                    'toolbar'     => 'main',
-                    'imageUpload' => Yii::app()->baseUrl . '/index.php/yupe/backend/AjaxFileUpload/',
-                ),
-                'htmlOptions' => array('rows' => 20, 'cols' => 6),
-            ))?>
+                'options'     => $this->module->editorOptions,
+            )); ?>
             <?php echo $form->error($model, 'description'); ?>
         </div>
     </div>
@@ -47,12 +39,12 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
         'type'       => 'primary',
-        'label'      => $model->isNewRecord ? Yii::t('gallery', 'Добавить галерею и продолжить') : Yii::t('gallery', 'Сохранить галерею и продолжить'),
+        'label'      => $model->isNewRecord ? Yii::t('GalleryModule.gallery', 'Добавить галерею и продолжить') : Yii::t('GalleryModule.gallery', 'Сохранить галерею и продолжить'),
     )); ?>
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'  => 'submit',
         'htmlOptions' => array('name' => 'submit-type', 'value' => 'index'),
-        'label'       => $model->isNewRecord ? Yii::t('gallery', 'Добавить галерею и закрыть') : Yii::t('gallery', 'Сохранить галерею и закрыть'),
+        'label'       => $model->isNewRecord ? Yii::t('GalleryModule.gallery', 'Добавить галерею и закрыть') : Yii::t('GalleryModule.gallery', 'Сохранить галерею и закрыть'),
     )); ?>
 
 <?php $this->endWidget(); ?>

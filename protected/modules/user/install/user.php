@@ -28,11 +28,12 @@ return array(
     ),
     'rules'     => array(
         '/login'                => 'user/account/login',
+        '/yupe/backend/login'   => 'user/account/backendlogin',
         '/logout'               => 'user/account/logout',
         '/registration'         => 'user/account/registration',
         '/recovery'             => 'user/account/recovery',
         '/users'                => 'user/people/index',
-        '/profile'              => 'user/people/profile',
+        '/profile'              => 'user/account/profile',
         '/user/<username:\w+>/' => 'user/people/userInfo',
     ),
 );

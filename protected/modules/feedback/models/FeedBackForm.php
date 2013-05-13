@@ -15,8 +15,8 @@ class FeedBackForm extends CFormModel
         return array(
             array('name, email, theme, text', 'required'),
             array('type', 'numerical', 'integerOnly' => true),
-            array('name, email, phone', 'length', 'max' => 100),
-            array('theme', 'length', 'max' => 150),
+            array('name, email, phone', 'length', 'max' => 150),
+            array('theme', 'length', 'max' => 250),
             array('email', 'email'),
             array('verifyCode', 'YRequiredValidator', 'allowEmpty' => !$module->showCaptcha || Yii::app()->user->isAuthenticated()),
             array('verifyCode', 'captcha', 'allowEmpty' => !$module->showCaptcha || Yii::app()->user->isAuthenticated()),
@@ -26,13 +26,13 @@ class FeedBackForm extends CFormModel
     public function attributeLabels()
     {
         return array(
-            'name'       => Yii::t('feedback', 'Ваше имя'),
-            'email'      => Yii::t('feedback', 'Email'),
-            'phone'      => Yii::t('feedback', 'Телефон'),
-            'theme'      => Yii::t('feedback', 'Тема'),
-            'text'       => Yii::t('feedback', 'Текст'),
-            'verifyCode' => Yii::t('feedback', 'Код проверки'),
-            'type'       => Yii::t('feedback', 'Тип'),
+            'name'       => Yii::t('FeedbackModule.feedback', 'Ваше имя'),
+            'email'      => Yii::t('FeedbackModule.feedback', 'Email'),
+            'phone'      => Yii::t('FeedbackModule.feedback', 'Телефон'),
+            'theme'      => Yii::t('FeedbackModule.feedback', 'Тема'),
+            'text'       => Yii::t('FeedbackModule.feedback', 'Текст'),
+            'verifyCode' => Yii::t('FeedbackModule.feedback', 'Код проверки'),
+            'type'       => Yii::t('FeedbackModule.feedback', 'Тип'),
         );
     }
 }

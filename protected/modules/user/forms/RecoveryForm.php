@@ -12,14 +12,14 @@ class RecoveryForm extends CFormModel
             array('email', 'checkEmail'),
         );
     }
-
+    // @TODO Unused parameter $attribute, $params
     public function checkEmail($attribute, $params)
     {
         if (!$this->hasErrors())
         {
             $this->_user = User::model()->active()->find('email = :email', array(':email' => $this->email));
             if (!$this->_user)
-                $this->addError('email', Yii::t('user', 'Email "{email}" не найден или пользователь заблокирован !', array('{email}' => $this->email)));
+                $this->addError('email', Yii::t('UserModule.user', 'Email "{email}" не найден или пользователь заблокирован !', array('{email}' => $this->email)));
         }
     }
 

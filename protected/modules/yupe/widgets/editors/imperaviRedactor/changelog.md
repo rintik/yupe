@@ -1,6 +1,33 @@
 Changelog
 =========
 
+1.2.3
+-----
+
+- Imperavi redactor updated to 8.2.6 (samdark)
+
+1.2.2
+-----
+
+- Imperavi redactor updated to 8.2.5 (samdark)
+
+1.2.1
+-----
+
+- Imperavi redactor updated to 8.2.3 (samdark)
+
+1.2
+---
+
+- Imperavi redactor updated to 8.2.2 (samdark)
+
+1.1
+---
+
+- Implemented redactor plugins (Veaceslav Medvedev)
+- Added multi-language support (Veaceslav Medvedev)
+- Script packages are now configurable via ImperaviRedactorWidget::$package (Veaceslav Medvedev)
+
 1.0
 ---
 
@@ -8,8 +35,8 @@ Changelog
 - Imperavi redactor updated to 8.2.1 (samdark)
 - Cleaned up docs and code (samdark)
 
-0.7 (2012-09-11)
-----------------
+0.7
+---
 
 - Imperavi redactor updated to version 8.0.3. (Veaceslav Medvedev)
 

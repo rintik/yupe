@@ -20,11 +20,8 @@ class PageController extends YFrontController
     /**
      * экшн для отображения конкретной страницы, отображает опубликованные страницы и превью
      */
-    public function actionShow($slug = null)
+    public function actionShow($slug)
     {
-        if (!$slug)
-            throw new CHttpException('404', Yii::t('page', 'Страница не найдена!'));
-
         $page = null;
         // превью
         $page = ((int) Yii::app()->request->getQuery('preview') === 1 && Yii::app()->user->isSuperUser())
@@ -37,15 +34,16 @@ class PageController extends YFrontController
                 ':lang'    => Yii::app()->language,
                 ':deflang' => Yii::app()->getModule('yupe')->defaultLanguage,
             ));
+
         if (!$page)
-            throw new CHttpException('404', Yii::t('page', 'Страница не найдена!'));
+            throw new CHttpException('404', Yii::t('PageModule.page', 'Страница не найдена!'));
 
         // проверим что пользователь может просматривать эту страницу
         if ($page->is_protected == Page::PROTECTED_YES && !Yii::app()->user->isAuthenticated())
         {
             Yii::app()->user->setFlash(
                 YFlashMessages::NOTICE_MESSAGE,
-                Yii::t('page', 'Для просмотра этой страницы Вам необходимо авторизоваться!')
+                Yii::t('PageModule.page', 'Для просмотра этой страницы Вам необходимо авторизоваться!')
             );
             $this->redirect(array(Yii::app()->getModule('user')->accountActivationSuccess));
         }
@@ -63,12 +61,15 @@ class PageController extends YFrontController
             $pages = $this->getBreadCrumbsRecursively($this->currentPage->parentPage);
 
         $pages = array_reverse($pages);
-        array_push($pages, $this->currentPage->title);
+        $pages[] = $this->currentPage->title;
         return $pages;
     }
+
     /**
      * Рекурсивно возвращает пригодный для zii.widgets.CBreadcrumbs массив, начиная со страницы $page
-     * @param int $pageId 
+     * @param Page $page
+     * @return array
+     * @internal param int $pageId
      */
     private function getBreadCrumbsRecursively(Page $page)
     {

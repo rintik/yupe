@@ -11,7 +11,10 @@ class BlogAdminController extends YBackController
      **/
     public function actionView($id)
     {
-        $this->render('view', array('model' => $this->loadModel($id)));
+        if (($model = Blog::model()->loadModel($id)) !== null)
+            $this->render('view', array('model' => $model));
+        else
+            throw new CHttpException(404, Yii::t('BlogModule.blog', 'Запрошенная страница не найдена!'));
     }
 
     /**
@@ -27,19 +30,22 @@ class BlogAdminController extends YBackController
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if (isset($_POST['Blog'])) {
-            $model->attributes = $_POST['Blog'];
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->getPost('Blog') !== null) {
+            $model->setAttributes(Yii::app()->request->getPost('Blog'));
 
             if ($model->save()) {
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('blog', 'Блог добавлен!')
+                    Yii::t('BlogModule.blog', 'Блог добавлен!')
                 );
-
-                if (!isset($_POST['submit-type']))
-                    $this->redirect(array('update', 'id' => $model->id));
-                else
-                    $this->redirect(array($_POST['submit-type']));
+                $this->redirect(
+                    (array) Yii::app()->request->getPost(
+                        'submit-type', array(
+                            'update',
+                            'id' => $model->id
+                        )
+                    )
+                );
             }
         }
         $this->render('create', array('model' => $model));
@@ -54,24 +60,27 @@ class BlogAdminController extends YBackController
      **/
     public function actionUpdate($id)
     {
-        $model = $this->loadModel($id);
+        if (($model = Blog::model()->loadModel($id)) === null)
+            throw new CHttpException(404, Yii::t('BlogModule.blog', 'Запрошенная страница не найдена!'));
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if (isset($_POST['Blog'])) {
-            $model->attributes = $_POST['Blog'];
-
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->getPost('Blog') !== null) {
+            $model->setAttributes(Yii::app()->request->getPost('Blog'));
             if ($model->save()) {
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('blog', 'Блог обновлен!')
+                    Yii::t('BlogModule.blog', 'Блог обновлен!')
                 );
-
-                if (!isset($_POST['submit-type']))
-                    $this->redirect(array('update', 'id' => $model->id));
-                else
-                    $this->redirect(array($_POST['submit-type']));
+                $this->redirect(
+                    (array) Yii::app()->request->getPost(
+                        'submit-type', array(
+                            'update',
+                            'id' => $model->id
+                        )
+                    )
+                );
             }
         }
         $this->render('update', array('model' => $model));
@@ -81,28 +90,30 @@ class BlogAdminController extends YBackController
      * Удаляет модель блога из базы.
      * Если удаление прошло успешно - возвращется в index
      *
-     * @param integer $id          идентификатор блога, который нужно удалить
-     * @param bool    $multiaction запрос из мультиекшена
+     * @param integer $id - идентификатор блога, который нужно удалить     
      *
      * @return nothing
      **/
-    public function actionDelete($id, $multiaction = false)
+    public function actionDelete($id)
     {
-        if (Yii::app()->request->isPostRequest || $multiaction === true) {
+        if (Yii::app()->request->isPostRequest) {
+            
             // поддерживаем удаление только из POST-запроса
-            $this->loadModel($id)->delete();
+            if (($model = Blog::model()->loadModel($id)) === null)
+                throw new CHttpException(404, Yii::t('BlogModule.blog', 'Запрошенная страница не найдена!'));
+            
+            $model->delete();
 
             Yii::app()->user->setFlash(
                 YFlashMessages::NOTICE_MESSAGE,
-                Yii::t('blog', 'Блог удален!')
+                Yii::t('BlogModule.blog', 'Блог удален!')
             );
 
             // если это AJAX запрос ( кликнули удаление в админском grid view), мы не должны никуда редиректить
-            if (!isset($_GET['ajax']))
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
-        }
-        else
-            throw new CHttpException(400, Yii::t('blog', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
+            if (!Yii::app()->request->isAjaxRequest)
+                $this->redirect(Yii::app()->request->getPost('returnUrl', array('index')));
+        } else
+            throw new CHttpException(400, Yii::t('BlogModule.blog', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
     }
 
     /**
@@ -114,52 +125,9 @@ class BlogAdminController extends YBackController
     {
         $model = new Blog('search');
         $model->unsetAttributes(); // clear any default values
-        if (isset($_GET['Blog']))
-            $model->attributes = $_GET['Blog'];
+        if (Yii::app()->request->getParam('Blog') !== null)
+            $model->setAttributes(Yii::app()->request->getParam('Blog'));
         $this->render('index', array('model' => $model));
-    }
-
-    /**
-     *  Мультиекшен:
-     *
-     *  в массиве $_GET передаются:
-     *      do    - действие над объектами
-     *      items - массив эллементов
-     *
-     * @return nothing
-     **/
-    public function actionMultiaction()
-    {
-        if ((isset($_GET['ajax'])) && ($_GET['ajax'] == 'Blog') && (isset($_GET['do'])) && (isset($_GET['items'])) && (is_array($_GET['items'])) && (!empty($_GET['items']))) {
-            switch ($_GET['do']) {
-            case 'delete':
-                foreach ($_GET['items'] as $itemId)
-                    $this->actionDelete($itemId, true);
-                break;
-                
-            default:
-                throw new CHttpException(404, Yii::t('blog', 'Запрошенная страница не найдена!'));
-                break;
-            }
-        }
-
-        return $this->actionIndex();
-    }
-
-    /**
-     * Возвращает модель по указанному идентификатору
-     * Если модель не будет найдена - возникнет HTTP-исключение.
-     *
-     * @param integer $id - идентификатор нужной модели
-     *
-     * @return BlogModel
-     **/
-    public function loadModel($id)
-    {
-        $model = Blog::model()->with('postsCount', 'membersCount')->findByPk((int) $id);
-        if ($model === null)
-            throw new CHttpException(404, Yii::t('blog', 'Запрошенная страница не найдена!'));
-        return $model;
     }
 
     /**
@@ -171,7 +139,7 @@ class BlogAdminController extends YBackController
      **/
     protected function performAjaxValidation($model)
     {
-        if (isset($_POST['ajax']) && $_POST['ajax'] === 'blog-form') {
+        if (Yii::app()->request->isAjaxRequest && Yii::app()->request->getPost('ajax') === 'blog-form') {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }

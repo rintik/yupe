@@ -38,7 +38,7 @@ class YCustomGridView extends TbExtendedGridView
      *  @todo if this an unused variable - need to delete it
      */
     public $inActiveStatus = 0;
-    
+
     /**
      *  @todo if this an unused variable - need to delete it
      */
@@ -47,7 +47,7 @@ class YCustomGridView extends TbExtendedGridView
     /**
      *  Field for sorting:
      *  @uses getUpDownButtons
-     *  @var string 
+     *  @var string
      */
     public $sortField      = 'sort';
 
@@ -57,32 +57,26 @@ class YCustomGridView extends TbExtendedGridView
     public $showStatusText = false;
 
     /**
-     *  default page size:
-     *  @uses init
-     *  @var integer
-     **/
-    const DEFAULT_PAGE_SIZE = 10;
-
-    /**
-     *  The count of items displayed per page: 
-     *  @uses init, renderHeadline
-     *  @var integer
-     **/
-    private $_pageSize;
-
-    /**
-     *  Default value for the count of items to display (can be changed in widgetCall):
-     *  @uses renderHeadline
-     *  @var integer
-     **/
+     * @var array Page sizes available to set for web-user.
+     */
     public $pageSizes = array(5, 10, 15, 20, 50, 100);
+
+    /**
+     * @var string A name for query parameter, that stores page size specified by web-user.
+     */
+    public $pageSizeVarName = 'pageSize';
+
+    /**
+     * @var bool Whether rendering of page size selector at headline section is available and enabled.
+     */
+    protected $_pageSizesEnabled = false;
 
     /**
      *  constant of headline positions:
      *  @uses renderHeadline
      *  @var string
      **/
-    const HP_LEFT = 'left';
+    const HP_LEFT  = 'left';
     const HP_RIGHT = 'right';
 
     /**
@@ -92,32 +86,58 @@ class YCustomGridView extends TbExtendedGridView
      **/
     public $headlinePosition;
 
+    public $template = "{headline}\n{summary}\n{items}\n{pager}\n{extendedSummary}\n{multiaction}";
+
+    public $ajaxUrl;
+
     /**
-    *   Widget initialize function:
-    *
-    *   @return None
-    */
+     * Widget initialization
+     *
+     * @return void
+     */
     public function init()
     {
         $this->_modelName = $this->dataProvider->modelClass;
-
-        $this->headlinePosition = empty($this->headlinePosition)
-                                    ? self::HP_RIGHT
-                                    : $this->headlinePosition;
-        
-        /* Устанавливаем PageSize: */
-        $this->dataProvider->pagination->pageSize = $this->_pageSize = (Yii::app()->request->getParam('pageSize') !== null) 
-                    ? Yii::app()->request->getParam('pageSize')
-                    : (isset(Yii::app()->session['modSettings'][strtolower($this->_modelName)]['pageSize'])
-                          ? Yii::app()->session['modSettings'][strtolower($this->_modelName)]['pageSize']
-                          : self::DEFAULT_PAGE_SIZE
-                    );
-        
-        /* Инициализируем родителя: */
+        $this->headlinePosition = empty($this->headlinePosition) ? self::HP_RIGHT : $this->headlinePosition;
+        $this->initPageSizes();
+        $this->ajaxUrl = empty($this->ajaxUrl)
+            ? (array) Yii::app()->controller->action->id
+            : $this->ajaxUrl;
         parent::init();
-        
-        /* Добавляем headline с возможностью переключения PageSize: */
-        $this->template = "{headline}\n" . $this->template . "{multiaction}\n";
+    }
+
+    /**
+     * Sets "pageSize" parameter at instance of CPagination which belongs to data provider.
+     * The value to set or specified by the web-user or taken from the session, where it is being stored when user specifies it.
+     *
+     * @return void
+     */
+    protected function initPageSizes()
+    {
+        $pagination = $this->dataProvider->getPagination();
+        if (
+            !$this->enablePagination
+            || strpos($this->template, '{headline}') === false
+            || $pagination === false
+        ) {
+            $this->_pageSizesEnabled = false;
+        } else {
+            $this->_pageSizesEnabled = true;
+
+            // Web-user specifies desired page size.
+            if (($pageSizeFromRequest = Yii::app()->getRequest()->getParam($this->pageSizeVarName)) !== null) {
+                $pageSizeFromRequest = (int)$pageSizeFromRequest;
+                // Check whether given page size is valid or use default value
+                if (in_array($pageSizeFromRequest, $this->pageSizes)) {
+                    $pagination->pageSize = $pageSizeFromRequest;
+                }
+                $this->_updatePageSize();
+            }
+            // Check for value at session or use default value
+            elseif(isset(Yii::app()->session['modSettings'][strtolower($this->_modelName)]['pageSize'])) {
+                $pagination->pageSize = Yii::app()->session['modSettings'][strtolower($this->_modelName)]['pageSize'];
+            }
+        }
     }
 
     /**
@@ -130,8 +150,8 @@ class YCustomGridView extends TbExtendedGridView
     * 2 - In Moderation
     *
     * @param class  $data        - a model instance for which generated display the switch
-    * @param string $statusField - 
-    * @param string $method      - 
+    * @param string $statusField -
+    * @param string $method      -
     * @param array  $icons       - an array of names icons statuses
     *
     * @return string HTML-code for BootStrap-switch icon
@@ -152,7 +172,7 @@ class YCustomGridView extends TbExtendedGridView
             reset($statusList);
             $status = key($statusList);
             while (list($key, $val) = each($statusList)) {
-                $val; // unused variable
+                $val; // @TODO unused variable
                 if ($key == $data->$statusField) {
                     $keyNext = key($statusList);
                     if (is_numeric($keyNext)) {
@@ -189,14 +209,14 @@ class YCustomGridView extends TbExtendedGridView
     {
         $downUrlImage = CHtml::image(
             Yii::app()->assetManager->publish(Yii::getPathOfAlias('zii.widgets.assets.gridview') . '/down.gif'),
-            Yii::t('yupe', 'Опустить ниже'),
-            array('title' => Yii::t('yupe', 'Опустить ниже'))
+            Yii::t('YupeModule.yupe', 'Опустить ниже'),
+            array('title' => Yii::t('YupeModule.yupe', 'Опустить ниже'))
         );
 
         $upUrlImage = CHtml::image(
             Yii::app()->assetManager->publish(Yii::getPathOfAlias('zii.widgets.assets.gridview') . '/up.gif'),
-            Yii::t('yupe', 'Поднять выше'),
-            array('title' => Yii::t('yupe', 'Поднять выше'))
+            Yii::t('YupeModule.yupe', 'Поднять выше'),
+            array('title' => Yii::t('YupeModule.yupe', 'Поднять выше'))
         );
         $urlUp = Yii::app()->controller->createUrl(
             "sort", array(
@@ -224,66 +244,67 @@ class YCustomGridView extends TbExtendedGridView
     }
 
     /**
-     *  Function for update PageSize:
+     * Обновление размера страницы
      *
-     *  @return nothing
+     * @return void
      */
-    private function _updatePageSize()
+    protected function _updatePageSize()
     {
-        /* ID текущей модели: */
-        $module_id = strtolower($this->_modelName);
-        /* Делаем так, так как при попытке править Yii::app()->session['modSettings'] - получаем ошибку: */
+        // ID текущей модели
+        $modelID = strtolower($this->_modelName);
+        // Делаем так, ибо при попытке править Yii::app()->session['modSettings'] - получаем ошибку
         $sessionSettings = Yii::app()->session['modSettings'];
+        $currentPageSize = $this->dataProvider->getPagination()->pageSize;
 
-        if (!isset($sessionSettings[$module_id]))
-            $sessionSettings[$module_id] = array();
+        if (!isset($sessionSettings[$modelID])) {
+            $sessionSettings[$modelID] = array();
+        }
 
-        /* Обновляем PageSize: */
-        /* Если для данного модуля не установлен pageSize - устанавливаем его: */
-        if (!isset($sessionSettings[$module_id]['pageSize'])) {
-            $newSets              = new Settings;
-            $newSets->module_id   = $module_id;
-            $newSets->param_name  = 'pageSize';
-            $newSets->param_value = $this->dataProvider->pagination->pageSize;
-            $newSets->type        = Settings::TYPE_USER;
+        // Если для данного модуля не установлен pageSize - устанавливаем его
+        if (!isset($sessionSettings[$modelID]['pageSize'])) {
+            $newSets = new Settings;
+            $newSets->module_id = $modelID;
+            $newSets->param_name = 'pageSize';
+            $newSets->param_value = $currentPageSize;
+            $newSets->type = Settings::TYPE_USER;
             $newSets->save();
         } else {
             $oldSets = Settings::model()->findByAttributes(
                 array(
-                    'user_id'    => Yii::app()->user->id,
-                    'module_id'  => $module_id,
+                    'user_id' => Yii::app()->user->id,
+                    'module_id' => $modelID,
                     'param_name' => 'pageSize',
-                    'type'       => Settings::TYPE_USER,
+                    'type' => Settings::TYPE_USER,
                 )
             );
-            $oldSets->param_value = $this->dataProvider->pagination->pageSize;
+            $oldSets->param_value = $currentPageSize;
             $oldSets->update();
         }
-        $sessionSettings[$module_id]['pageSize'] = $this->dataProvider->pagination->pageSize;
-        /* Перезаписываем сессию: */
+        $sessionSettings[$modelID]['pageSize'] = $currentPageSize;
+        // Перезаписываем сессию
         Yii::app()->session['modSettings'] = $sessionSettings;
     }
 
     /**
-     * Function for rendering headline
+     * Headline rendering method
      *
-     *  @return nothing
+     * @return void
      */
     public function renderHeadline()
     {
-        $cscript = Yii::app()->getClientScript();
-        $buttons = array();
-        
-        /* Если передан запрос на установку PageSize - обновляем данные: */
-        if (Yii::app()->request->getParam('pageSize') !== null) {
-            $this->_updatePageSize();
+        if (!$this->_pageSizesEnabled) {
+            return;
         }
-        
+        /** @var $cs CClientScript */
+        $cs = Yii::app()->getClientScript();
+        $buttons = array();
+        $currentPageSize = $this->dataProvider->getPagination()->pageSize;
+
         /* Перебор переключателей: */
         foreach ($this->pageSizes as $pageSize)
             $buttons[] = array(
                 'label'       => $pageSize,
-                'active'      => $pageSize == $this->_pageSize,
+                'active'      => $pageSize == $currentPageSize,
                 'htmlOptions' => array(
                     'class' => 'pageSize',
                     'rel'   => $pageSize,
@@ -296,8 +317,8 @@ class YCustomGridView extends TbExtendedGridView
             $headlinePosition = ' style="text-align: ' . $this->headlinePosition . ';" ';
         echo '<div class="headline" ' . $headlinePosition .' >';
         /* Текстовка: */
-        echo Yii::t('yupe', 'Количество отображаемых эллементов:') . '<br />';
-        
+        echo Yii::t('YupeModule.yupe', 'Отображать по:') . '<br />';
+
         /* Отрисовываем переключатели PageSize'a: */
         $this->widget(
             'bootstrap.widgets.TbButtonGroup', array(
@@ -310,16 +331,23 @@ class YCustomGridView extends TbExtendedGridView
         echo '</div>';
         echo '<br />';
         /* Скрипт передачи PageSize: */
-        $cscript->registerScript(
+        $cs->registerScript(
             __CLASS__ . '#' . $this->id . 'ExHeadline',
-            'jQuery(document).ready(function($) {
-                $(document).on("mousedown", ".pageSize", function() {
-                    $.fn.yiiGridView.update("' . $this->id . '", {
-                        data: "pageSize=" + $(this).attr("rel")
-                    });
-                    return false;
-                });
-            });', CClientScript::POS_BEGIN
+<<<JS
+(function(){
+    $('body').on('click', '#{$this->getId()} .pageSize', function(event) {
+        event.preventDefault();
+        $('#{$this->getId()}').yiiGridView('update',{
+            // Если в гриде нет записей
+            // будет вылетать с ошибкой - Uncaught TypeError: Cannot call method 'match' of undefined 
+            // В данном случае необходимо указывать URL.
+            url: window.location.href,
+            data: {'{$this->pageSizeVarName}': $(this).attr('rel')}
+        });
+    });
+})();
+JS
+            , CClientScript::POS_READY
         );
     }
 
@@ -336,28 +364,31 @@ class YCustomGridView extends TbExtendedGridView
     public function renderMultiaction()
     {
         $cscript = Yii::app()->getClientScript();
-        
+
         $multiactionUrl = str_replace(Yii::app()->controller->action->id, 'multiaction', Yii::app()->request->requestUri);
 
         /* Скрипт для мультиекшена: */
         $cscript->registerScript(
             __CLASS__ . '#' . $this->id . 'ExMultiaction',
-            'var multiaction = function(status, values) {
+            'var multiaction = function(action, values) {
                 var queryString = "";
+                var url = "'.$multiactionUrl.'";
                 $.map(values, function(itemInput) {
                     queryString += ((queryString.length > 0) ? "&" : "") + "items[]=" + $(itemInput).val() ;
-                });
-                $("#' . $this->id . '").addClass("grid-view-loading");
+                });                
                 $.ajax({
-                    url: "' . $multiactionUrl . '",
-                    type: "GET",
-                    data: "ajax=' . $this->_modelName . '&do=" + status + "&" + queryString,
+                    url: url,
+                    type: "POST",
+                    dataType: "json",
+                    data: "'.Yii::app()->request->csrfTokenName.'='.Yii::app()->request->csrfToken.'&model=' . $this->_modelName . '&do=" + action + "&" + queryString,
                     success: function(data) {
-                        if (data) {
-                            var gridContent = $(data).find("#' . $this->id . '");
-                            $("#' . $this->id . '").html(gridContent.html()).removeClass("grid-view-loading");
+                        if (data.result) {                            
+                            $.fn.yiiGridView.update("'.$this->id.'");
+                        }else{
+                            alert(data.data);
                         }
-                    }
+                    },
+                    error: function(data){alert("'.Yii::t('YupeModule.yupe','Произошла ошибка!').'")}
                 });
             }', CClientScript::POS_BEGIN
         );

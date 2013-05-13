@@ -10,6 +10,7 @@
  * @property string $description
  * @property string $alias
  * @property integer $status
+ * @property string $lang
  */
 class Category extends YModel
 {
@@ -23,7 +24,7 @@ class Category extends YModel
      */
     public function tableName()
     {
-        return '{{category}}';
+        return '{{category_category}}';
     }
 
     /**
@@ -43,32 +44,52 @@ class Category extends YModel
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('name, description, short_description, image, alias', 'filter', 'filter' => 'trim'),
-            array('name, alias, image', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
-            array('name, description, alias', 'required'),
+            array('name, description, short_description, alias', 'filter', 'filter' => 'trim'),
+            array('name, alias', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
+            array('name, description, alias, lang', 'required'),
             array('parent_id, status', 'numerical', 'integerOnly' => true),
+            array('parent_id, status', 'length', 'max' => 11),
             array('parent_id', 'default', 'setOnEmpty' => true, 'value' => null),
-            array('name', 'length', 'max' => 150),
-            array('alias', 'length', 'max' => 100),
-            array('alias', 'YSLugValidator', 'message' => Yii::t('catalog', 'Запрещенные символы в поле {attribute}')),
+            array('name, image', 'length', 'max' => 250),
+            array('alias', 'length', 'max' => 150),
             array('lang', 'length', 'max' => 2 ),
-            array('lang', 'default', 'value' => Yii::app()->sourceLanguage),
-            array('alias', 'unique', 'criteria' => array(
-                    'condition' => 'lang = :lang',
-                    'params' => array(':lang' => $this->lang),
-                ),
-                'on' => array('insert'),
-            ),
+            array('alias', 'YSLugValidator', 'message' => Yii::t('catalog', 'Запрещенные символы в поле {attribute}')),
+            array('alias', 'YUniqueSlugValidator'),
             array('status', 'in', 'range' => array_keys($this->statusList)),
-            array('image', 'file', 'types' => 'jpg, gif, png', 'allowEmpty' => true),
-            array('id, parent_id, name, description, short_description, alias, status', 'safe', 'on' => 'search'),
+            array('id, parent_id, name, description, short_description, alias, status, lang', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function behaviors()
+    {
+        $module = Yii::app()->getModule('category');
+        return array(
+            'imageUpload' => array(
+                'class'         =>'application.modules.yupe.models.ImageUploadBehavior',
+                'scenarios'     => array('insert','update'),
+                'attributeName' => 'image',
+                'uploadPath'    => $module !== null ? $module->getUploadPath() : null,
+                'imageNameCallback' => array($this, 'generateFileName'),
+                'resize' => array(
+                    'quality' => 70,
+                    'width' => 800,
+                )
+            ),
+        );
+    }
+
+    public function generateFileName()
+    {
+        return md5($this->name . time());
     }
 
     public function beforeValidate()
     {
         if (!$this->alias)
             $this->alias = YText::translit($this->name);
+
+        if(!$this->lang)
+            $this->lang = Yii::app()->language;
 
         return parent::beforeValidate();
     }
@@ -79,15 +100,15 @@ class Category extends YModel
     public function attributeLabels()
     {
         return array(
-            'id'                => Yii::t('category', 'Id'),
-            'lang'              => Yii::t('category', 'Язык'),
-            'parent_id'         => Yii::t('category', 'Родитель'),
-            'name'              => Yii::t('category', 'Название'),
-            'image'             => Yii::t('category', 'Изображение'),
-            'short_description' => Yii::t('category', 'Короткое описание'),
-            'description'       => Yii::t('category', 'Описание'),
-            'alias'             => Yii::t('category', 'Алиас'),
-            'status'            => Yii::t('category', 'Статус'),
+            'id'                => Yii::t('CategoryModule.category', 'Id'),
+            'lang'              => Yii::t('CategoryModule.category', 'Язык'),
+            'parent_id'         => Yii::t('CategoryModule.category', 'Родитель'),
+            'name'              => Yii::t('CategoryModule.category', 'Название'),
+            'image'             => Yii::t('CategoryModule.category', 'Изображение'),
+            'short_description' => Yii::t('CategoryModule.category', 'Короткое описание'),
+            'description'       => Yii::t('CategoryModule.category', 'Описание'),
+            'alias'             => Yii::t('CategoryModule.category', 'Алиас'),
+            'status'            => Yii::t('CategoryModule.category', 'Статус'),
         );
     }
 
@@ -97,15 +118,15 @@ class Category extends YModel
     public function attributeDescriptions()
     {
        return array(
-            'id'                => Yii::t('category', 'Id'),
-            'lang'              => Yii::t('category', 'Язык'),
-            'parent_id'         => Yii::t('category', 'Родитель'),
-            'name'              => Yii::t('category', 'Название'),
-            'image'             => Yii::t('category', 'Изображение'),
-            'short_description' => Yii::t('category', 'Короткое описание'),
-            'description'       => Yii::t('category', 'Описание'),
-            'alias'             => Yii::t('category', 'Алиас'),
-            'status'            => Yii::t('category', 'Статус'),
+            'id'                => Yii::t('CategoryModule.category', 'Id'),
+            'lang'              => Yii::t('CategoryModule.category', 'Язык'),
+            'parent_id'         => Yii::t('CategoryModule.category', 'Родитель'),
+            'name'              => Yii::t('CategoryModule.category', 'Название'),
+            'image'             => Yii::t('CategoryModule.category', 'Изображение'),
+            'short_description' => Yii::t('CategoryModule.category', 'Короткое описание'),
+            'description'       => Yii::t('CategoryModule.category', 'Описание'),
+            'alias'             => Yii::t('CategoryModule.category', 'Алиас'),
+            'status'            => Yii::t('CategoryModule.category', 'Статус'),
         );
     }
 
@@ -121,10 +142,11 @@ class Category extends YModel
         $criteria = new CDbCriteria;
 
         $criteria->compare('id', $this->id, true);
-        $criteria->compare('parent_id', $this->parent_id);
-        $criteria->compare('name', $this->name, true);
-        $criteria->compare('description', $this->description, true);
-        $criteria->compare('alias', $this->alias, true);
+        $criteria->compare('parent_id', $this->parent_id,true);
+        $criteria->compare('name', $this->name);
+        $criteria->compare('description', $this->description);
+        $criteria->compare('alias', $this->alias);
+        $criteria->compare('lang', $this->lang);
         $criteria->compare('status', $this->status);
 
         return new CActiveDataProvider(get_class($this), array('criteria' => $criteria));
@@ -133,16 +155,16 @@ class Category extends YModel
     public function getStatusList()
     {
         return array(
-            self::STATUS_DRAFT      => Yii::t('category', 'Черновик'),
-            self::STATUS_PUBLISHED  => Yii::t('category', 'Опубликовано'),
-            self::STATUS_MODERATION => Yii::t('category', 'На модерации'),
+            self::STATUS_DRAFT      => Yii::t('CategoryModule.category', 'Черновик'),
+            self::STATUS_PUBLISHED  => Yii::t('CategoryModule.category', 'Опубликовано'),
+            self::STATUS_MODERATION => Yii::t('CategoryModule.category', 'На модерации'),
         );
     }
 
     public function getStatus()
     {
         $data = $this->statusList;
-        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('category', '*неизвестно*');
+        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('CategoryModule.category', '*неизвестно*');
     }
 
     public function getAllCategoryList($selfId = false)

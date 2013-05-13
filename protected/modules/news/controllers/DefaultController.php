@@ -22,21 +22,19 @@ class DefaultController extends YBackController
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if (isset($_POST['News']))
+        if (Yii::app()->request->isPostRequest && isset($_POST['News']))
         {
-            $model->attributes = $_POST['News'];
+            $model->setAttributes(Yii::app()->request->getPost('News'));
 
             if ($model->save())
             {
-                $model->saveWithImage('image', $this->module->getUploadPath());
-
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('news', 'Новость добавлена!')
+                    Yii::t('NewsModule.news', 'Новость добавлена!')
                 );
 
                 if (!isset($_POST['submit-type']))
-                    $this->redirect(array('update', 'alias' => $model->alias));
+                    $this->redirect(array('update', 'id' => $model->id));
                 else
                     $this->redirect(array($_POST['submit-type']));
 
@@ -44,189 +42,99 @@ class DefaultController extends YBackController
             }
         }
 
-        $model->date = date('d.m.Y');
+        $languages = $this->yupe->getLanguagesList();
 
-        $this->render('create', array('model' => $model));
+        //если добавляем перевод
+        $id = (int)Yii::app()->request->getQuery('id');
+        $lang = Yii::app()->request->getQuery('lang');
+
+        if(!empty($id) && !empty($lang)){
+            $news = News::model()->findByPk($id);
+            if(null === $news){
+                Yii::app()->user->setFlash(YFlashMessages::ERROR_MESSAGE,Yii::t('NewsModule.news','Целевая новость не найдена!'));
+                $this->redirect(array('/news/default/create'));
+            }
+            if(!array_key_exists($lang,$languages)){
+                Yii::app()->user->setFlash(YFlashMessages::ERROR_MESSAGE,Yii::t('NewsModule.news','Язык не найден!'));
+                $this->redirect(array('/news/default/create'));
+            }
+            Yii::app()->user->setFlash(YFlashMessages::NOTICE_MESSAGE,Yii::t('NewsModule.news','Вы добавляете перевод на {lang} язык!',array(
+                        '{lang}' => $languages[$lang]
+                    )));
+            $model->lang = $lang;
+            $model->alias = $news->alias;
+            $model->date = $news->date;
+            $model->category_id = $news->category_id;
+            $model->title = $news->title;
+        }else{
+            $model->date = date('d.m.Y');
+            $model->lang = Yii::app()->language;
+        }
+
+        $this->render('create', array('model' => $model, 'languages' => $languages));
     }
 
     /**
      * Updates a particular model.
      * If update is successful, the browser will be redirected to the 'view' page.
+     * @param null $alias
      * @param integer $id the ID of the model to be updated
+     * @throws CHttpException
+     * @return void
      */
-    public function actionUpdate($alias = null, $id = null)
+    public function actionUpdate($id)
     {
-        if (!$alias)
-        {
-            // Указан ID новости страницы, редактируем только ее
-            $model = $this->loadModel($id);
+        $model = $this->loadModel((int)$id);
 
-            // Uncomment the following line if AJAX validation is needed
-            // $this->performAjaxValidation($model);
-
-            if (isset($_POST['News']))
-            {
-                $model->attributes = $_POST['News'];
-
-                if ($model->save())
-                {
-                    Yii::app()->user->setFlash(
-                        YFlashMessages::NOTICE_MESSAGE,
-                        Yii::t('news', 'Новость изменена!')
-                    );
-
-                    if (!isset($_POST['submit-type']))
-                        $this->redirect(array('update', 'alias' => $model->alias));
-                    else
-                        $this->redirect(array($_POST['submit-type']));
-                }
-            }
-            $this->render('update', array('model' => $model));
-        }
-        else
-        {
-            $modelsByLang = array();
-            // Указано ключевое слово новости, ищем все языки
-            $yupe  = Yii::app()->getModule('yupe');
-            $langs = explode(",", $yupe->availableLanguages);
-
-            $models = News::model()->findAllByAttributes(array('alias' => $alias));
-            if (!$models)
-                throw new CHttpException(404, Yii::t('news', 'Указанная новость не найдена'));
-
-            $model = null;
-            // Собираем модельки по языкам
-            foreach ($models as $m)
-            {
-                if (!$m->lang)
-                    $m->lang = Yii::app()->sourceLanguage;
-                $modelsByLang[$m->lang] = $m;
-            }
-            // Выберем модельку для вывода тайтлов и прочего
-            $model = isset($modelsByLang[Yii::app()->language])
-                ? $modelsByLang[Yii::app()->language]
-                : (isset($modelsByLang[Yii::app()->sourceLanguage])
-                    ? $modelsByLang[Yii::app()->sourceLanguage]
-                    : reset($models)
+        if (Yii::app()->request->isPostRequest && isset($_POST['News'])) {
+            $model->setAttributes(Yii::app()->request->getPost('News'));
+            if ($model->save()) {
+                Yii::app()->user->setFlash(
+                    YFlashMessages::NOTICE_MESSAGE,
+                    Yii::t('NewsModule.news', 'Новость обновлена!')
                 );
 
-            // Теперь создадим недостоающие
-            foreach ($langs as $l)
-            {
-                if (!isset($modelsByLang[$l]))
-                {
-                    $news = new News;
-                    $news->setAttributes(
-                        array(
-                            'alias'         => $alias,
-                            'lang'          => $l,
-                            'link'          => $model->link,
-                            'date'          => $model->date,
-                            'category_id'   => $model->category_id,
-                            'iamge'         => $model->image,
-                            'creation_date' => $model->creation_date,
-                            'change_date'   => $model->change_date,
-                            'user_id'       => Yii::app()->user->id,
-                            'status'        => $model->status,
-                            'is_protected'  => $model->is_protected,
-                        )
-                    );
-
-                    if ($l != Yii::app()->sourceLanguage)
-                        $news->scenario = 'altlang';
-
-                    $modelsByLang[$l] = $news;
-                }
-            }
-            // Проверим пост
-            if (isset($_POST['News']))
-            {
-                $wasError = false;
-
-                foreach ($langs as $l)
-                {
-                    if (isset($_POST['News'][$l]))
-                    {
-                        $image = $modelsByLang[$l]->image;
-                        $p      = $_POST['News'][$l];
-
-                        $modelsByLang[$l]->setAttributes(array(
-                            'alias'        => $_POST['News']['alias'],
-                            'is_protected' => $_POST['News']['is_protected'],
-                            'date'         => $_POST['News']['date'],
-                            'category_id'  => $_POST['News']['category_id'],
-                            'link'         => $_POST['News']['link'],
-                            'image'        => $modelsByLang[$l]->image,
-                            'title'        => $p['title'],
-                            'short_text'   => $p['short_text'],
-                            'full_text'    => $p['full_text'],
-                            'keywords'     => $p['keywords'],
-                            'description'  => $p['description'],
-                            'status'       => $p['status'],
-                        ));
-
-                        if ($l != Yii::app()->sourceLanguage)
-                            $modelsByLang[$l]->scenario = 'altlang';
-
-                        if (!$modelsByLang[$l]->save())
-                            $wasError = true;
-                        else
-                        {
-                            $modelsByLang[$l]->saveWithImage('image', $this->module->getUploadPath(), $image);
-                            $alias = $modelsByLang[$l]->alias;
-                        }
-                    }
-                }
-
-                if (!$wasError)
-                {
-                    Yii::app()->user->setFlash(
-                        YFlashMessages::NOTICE_MESSAGE,
-                        Yii::t('news', 'Новость обновлена!')
-                    );
-
-                    if (!isset($_POST['submit-type']))
-                        $this->redirect(array('update', 'alias' => $model->alias));
-                    else
-                        $this->redirect(array($_POST['submit-type']));
-                }
+                if (!isset($_POST['submit-type']))
+                    $this->redirect(array('update', 'id' => $model->id));
                 else
-                    Yii::app()->user->setFlash(
-                        YFlashMessages::NOTICE_MESSAGE,
-                        Yii::t('news', 'Ошибки при сохранении новости!')
-                    );
+                    $this->redirect(array($_POST['submit-type']));
+
+                $this->redirect(array('view', 'id' => $model->id));
             }
-            $this->render('updateMultilang', array(
-                'model'  => $model,
-                'models' => $modelsByLang,
-                'langs'  => $langs,
-            ));
         }
+
+        // найти по alias страницы на других языках
+        $langModels = News::model()->findAll('alias = :alias AND id != :id',array(
+            ':alias' => $model->alias,
+            ':id' => $model->id
+        ));
+
+        $this->render('update',array(
+            'langModels' => CHtml::listData($langModels,'lang','id'),
+            'model' => $model,
+            'languages' => $this->yupe->getLanguagesList()
+        ));
     }
 
     /**
      * Deletes a particular model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param null $alias
      * @param integer $id the ID of the model to be deleted
+     * @throws CHttpException
+     * @return void
      */
-    public function actionDelete($alias = null, $id = null)
+    public function actionDelete($id = null)
     {
         if (Yii::app()->request->isPostRequest)
         {
-            if ($alias)
-            {
-                if (!($model = News::model()->findAllByAttributes(array('alias' => $alias))))
-                    throw new CHttpException(404, Yii::t('news', 'Новость не нейдена'));
-                $model->delete();
-            }
-            else
-                $this->loadModel($id)->delete(); // we only allow deletion via POST request
+            $this->loadModel($id)->delete();
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if (!isset($_GET['ajax']))
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
         else
-            throw new CHttpException(400, Yii::t('news', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
+            throw new CHttpException(400, Yii::t('NewsModule.news', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
     }
 
     /**

@@ -6,18 +6,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'type'                   => 'vertical',
     'htmlOptions'            => array('class' => 'well'),
     'inlineErrors'           => true,
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <div class="alert alert-info">
-        <?php echo Yii::t('feedback', 'Поля, отмеченные'); ?>
+        <?php echo Yii::t('FeedbackModule.feedback', 'Поля, отмеченные'); ?>
         <span class="required">*</span>
-        <?php echo Yii::t('feedback', 'обязательны.'); ?>
+        <?php echo Yii::t('FeedbackModule.feedback', 'обязательны.'); ?>
     </div>
 
     <?php echo $form->errorSummary($model); ?>
@@ -29,6 +22,9 @@ Yii::app()->clientScript->registerScript('fieldset', "
         <div class="span3">
             <?php echo $form->dropDownListRow($model, 'status', $model->getStatusList(), array('class' => 'popover-help', 'data-original-title' => $model->getAttributeLabel('status'), 'data-content' => $model->getAttributeDescription('status'))); ?>
         </div>
+    </div>
+    <div class="row-fluid control-group  <?php echo $model->hasErrors('category_id') ? 'error' : ''; ?>">
+        <?php echo $form->dropDownListRow($model,'category_id',CHtml::listData($this->module->getCategoryList(),'id','name'), array('empty' => Yii::t('FeedbackModule.feedback','--укажите--'),'class' => 'popover-help span7', 'data-original-title' => $model->getAttributeLabel('name'), 'data-content' => $model->getAttributeDescription('name'))); ?>
     </div>
     <div class="row-fluid control-group  <?php echo $model->hasErrors('name') ? 'error' : ''; ?>">
         <?php echo $form->textFieldRow($model, 'name', array('class' => 'popover-help span7', 'maxlength' => 150, 'size' => 60, 'data-original-title' => $model->getAttributeLabel('name'), 'data-content' => $model->getAttributeDescription('name'))); ?>
@@ -44,18 +40,11 @@ Yii::app()->clientScript->registerScript('fieldset', "
     </div>
     <div class="row-fluid control-group <?php echo $model->hasErrors('text') ? 'error' : ''; ?>">
         <div class="popover-help" data-original-title='<?php echo $model->getAttributeLabel('text'); ?>' data-content='<?php echo $model->getAttributeDescription('text'); ?>'>
-            <?php echo $form->labelEx($model, 'text'); ?>
-            <?php
-            $this->widget(Yii::app()->getModule('yupe')->editor, array(
+            <?php $this->widget($this->module->editor, array(
                 'model'       => $model,
                 'attribute'   => 'text',
-                'options'     => array(
-                    'toolbar'     => 'main',
-                    'imageUpload' => Yii::app()->baseUrl . '/index.php/yupe/backend/AjaxFileUpload/',
-                ),
-                'htmlOptions' => array('rows' => 20, 'cols' => 6),
-            ));
-            ?>
+                'options'     => $this->module->editorOptions,
+            )); ?>
         </div>
         <div class="span5">
             <?php echo $form->error($model, 'text'); ?>
@@ -64,17 +53,11 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <div class="row-fluid control-group <?php echo $model->hasErrors('answer') ? 'error' : ''; ?>">
         <div class="popover-help" data-original-title='<?php echo $model->getAttributeLabel('answer'); ?>' data-content='<?php echo $model->getAttributeDescription('answer'); ?>'>
             <?php echo $form->labelEx($model, 'answer'); ?>
-            <?php
-            $this->widget(Yii::app()->getModule('yupe')->editor, array(
+            <?php $this->widget($this->module->editor, array(
                 'model'       => $model,
                 'attribute'   => 'answer',
-                'options'     => array(
-                    'toolbar'     => 'main',
-                    'imageUpload' => Yii::app()->baseUrl . '/index.php/yupe/backend/AjaxFileUpload/',
-                ),
-                'htmlOptions' => array('rows' => 20, 'cols' => 6),
-            ));
-            ?>
+                'options'     => $this->module->editorOptions,
+            )); ?>
         </div>
         <div class="span5">
             <?php echo $form->error($model, 'answer'); ?>
@@ -86,7 +69,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <?php if ($model->status == FeedBack::STATUS_ANSWER_SENDED): ?>
         <div class="row-fluid control-group">
             <div class="span7">
-                <label><?php echo Yii::t('feedback', 'Ответил'); ?> <?php echo CHtml::link($model->getAnsweredUser(), array( '/user/default/view', 'id' => $model->answer_user )); ?> (<?php echo $model->answer_date; ?>)</label>
+                <label><?php echo Yii::t('FeedbackModule.feedback', 'Ответил'); ?> <?php echo CHtml::link($model->getAnsweredUser(), array( '/user/default/view', 'id' => $model->answer_user )); ?> (<?php echo $model->answer_date; ?>)</label>
                 <?php echo $model->answer; ?>
             </div>
         </div>
@@ -95,12 +78,12 @@ Yii::app()->clientScript->registerScript('fieldset', "
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
         'type'       => 'primary',
-        'label'      => $model->isNewRecord ? Yii::t('feedback', 'Добавить сообщение с сайта и продолжить') : Yii::t('feedback', 'Сохранить с сайта сообщение и продолжить'),
+        'label'      => $model->isNewRecord ? Yii::t('FeedbackModule.feedback', 'Добавить сообщение   и продолжить') : Yii::t('FeedbackModule.feedback', 'Сохранить   сообщение и продолжить'),
     )); ?>
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
         'htmlOptions'=> array('name' => 'submit-type', 'value' => 'index'),
-        'label'      => $model->isNewRecord ? Yii::t('feedback', 'Добавить сообщение с сайта и закрыть') : Yii::t('feedback', 'Сохранить с сайта сообщение и закрыть'),
+        'label'      => $model->isNewRecord ? Yii::t('FeedbackModule.feedback', 'Добавить сообщение   и закрыть') : Yii::t('FeedbackModule.feedback', 'Сохранить   сообщение и закрыть'),
     )); ?>
 
 <?php $this->endWidget(); ?>
