@@ -1,27 +1,27 @@
 <?php
     $this->breadcrumbs = array(
         Yii::app()->getModule('page')->getCategory() => array(),
-        Yii::t('page', 'Страницы') => array('/page/default/index'),
-        Yii::t('page', 'Управление'),
+        Yii::t('PageModule.page', 'Страницы') => array('/page/default/index'),
+        Yii::t('PageModule.page', 'Список'),
     );
 
-    $this->pageTitle = Yii::t('page', 'Управление страницами');
+    $this->pageTitle = Yii::t('PageModule.page', 'Список страниц');
 
     $this->menu = array(
-        array('icon' => 'list-alt', 'label' => Yii::t('page', 'Управление страницами'), 'url' => array('/page/default/index')),
-        array('icon' => 'plus-sign', 'label' => Yii::t('page', 'Добавить страницу'), 'url' => array('/page/default/create')),
+        array('icon' => 'list-alt', 'label' => Yii::t('PageModule.page', 'Список страниц'), 'url' => array('/page/default/index')),
+        array('icon' => 'plus-sign', 'label' => Yii::t('PageModule.page', 'Добавить страницу'), 'url' => array('/page/default/create')),
     );
 ?>
 <div class="page-header">
     <h1>
-        <?php echo Yii::t('page', 'Страницы'); ?>
-        <small><?php echo Yii::t('page', 'управление'); ?></small>
+        <?php echo Yii::t('PageModule.page', 'Страницы'); ?>
+        <small><?php echo Yii::t('PageModule.page', 'управление'); ?></small>
     </h1>
 </div>
 
 <button class="btn btn-small dropdown-toggle" data-toggle="collapse" data-target="#search-toggle">
     <i class="icon-search">&nbsp;</i>
-    <?php echo CHtml::link(Yii::t('page', 'Поиск страниц'), '#', array('class' => 'search-button')); ?>
+    <?php echo CHtml::link(Yii::t('PageModule.page', 'Поиск страниц'), '#', array('class' => 'search-button')); ?>
     <span class="caret">&nbsp;</span>
 </button>
 
@@ -41,48 +41,60 @@ $this->renderPartial('_search', array('model' => $model, 'pages' => $pages));
 
 <br/>
 
-<p><?php echo Yii::t('page', 'В данном разделе представлены средства управления страницами'); ?></p>
+<p><?php echo Yii::t('PageModule.page', 'В данном разделе представлены средства управления страницами'); ?></p>
 
 <?php $this->widget('application.modules.yupe.components.YCustomGridView', array(
     'id'           => 'page-grid',
     'type'         => 'condensed',
     'dataProvider' => $model->search(),
     'filter'       => $model,
-    'sortField'    => 'menu_order',
+    'sortField'    => 'order',
     'columns'      => array(
-        'id',
-        'title',
         array(
-            'name'  => 'name',
+            'name'  => 'id',
             'type'  => 'raw',
-            'value' => 'CHtml::link($data->name, array("/page/default/update", "slug" => $data->slug))',
+            'value' => 'CHtml::link($data->id, array("/page/default/update", "id" => $data->id))',
+        ),
+        array(
+            'name'  => 'title',
+            'type'  => 'raw',
+            'value' => 'CHtml::link($data->title, array("/page/default/update", "id" => $data->id))',
+        ),
+        'title_short',
+        array(
+            'name'  => 'slug',
+            'type'  => 'raw',
+            'value' => 'CHtml::link($data->slug, array("/page/default/update", "id" => $data->id))',
         ),
         array(
             'name'  => 'category_id',
             'value' => '$data->getCategoryName()',
+            'filter' => CHtml::listData($this->module->getCategoryList(),'id','name')
         ),
         array(
             'name'  => 'parent_id',
             'value' => '$data->parentName',
         ),
         array(
-            'name'  => 'slug',
-            'value' => '$data->slug',
+            'header' => Yii::t('PageModule.page', 'Публичный урл'),
+            'type'   => 'raw',
+            'value'  => 'CHtml::link($data->getPermaLink(),$data->getPermaLink(),array("target" => "_blank"))',
         ),
         array(
-            'header' => Yii::t('page', 'Публичный урл'),
-            'value'  => 'Yii::app()->createAbsoluteUrl("/page/page/show", array("slug" => $data->slug))',
-        ),
-        array(
-            'name'  => 'menu_order',
+            'name'  => 'order',
             'type'  => 'raw',
             'value' => '$this->grid->getUpDownButtons($data)',
         ),
-        'lang',
+        array(
+            'name'  => 'lang',
+            'value'  => '$data->lang',
+            'filter' => Yii::app()->getModule('yupe')->getLanguagesList()
+        ),
         array(
             'name'  => 'status',
             'type'  => 'raw',
             'value' => '$this->grid->returnBootstrapStatusHtml($data, "status", "Status", array("pencil", "ok-sign", "time"))',
+            'filter' => $model->getStatusList()
         ),
         array(
             'class' => 'bootstrap.widgets.TbButtonColumn',

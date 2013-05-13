@@ -1,9 +1,20 @@
 <?php
+/**
+ * MailTemplate model class
+ * Класс модели MailTemplate
+ *
+ * @category YupeModel
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
 
 /**
  * This is the model class for table "mail_template".
  *
  * The followings are the available columns in table 'mail_template':
+ *
  * @property string $id
  * @property string $event_id
  * @property string $name
@@ -16,7 +27,16 @@
  *
  * The followings are the available model relations:
  * @property MailEvent $event
- */
+ *
+  * MailTemplate model class
+ * Класс модели MailTemplate
+ *
+ * @category YupeModel
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
 class MailTemplate extends YModel
 {
     const STATUS_ACTIVE     = 1;
@@ -24,7 +44,9 @@ class MailTemplate extends YModel
 
     /**
      * Returns the static model of the specified AR class.
+     *
      * @param string $className active record class name.
+     *
      * @return MailTemplate the static model class
      */
     public static function model($className = __CLASS__)
@@ -33,14 +55,18 @@ class MailTemplate extends YModel
     }
 
     /**
+     * Получаем имя таблицы:
+     *
      * @return string the associated database table name
      */
     public function tableName()
     {
-        return '{{mail_template}}';
+        return '{{mail_mail_template}}';
     }
 
     /**
+     * Получаем правила валидации полей таблицы:
+     *
      * @return array validation rules for model attributes.
      */
     public function rules()
@@ -62,6 +88,8 @@ class MailTemplate extends YModel
     }
 
     /**
+     * Получаем связи данной таблицы:
+     *
      * @return array relational rules.
      */
     public function relations()
@@ -74,26 +102,29 @@ class MailTemplate extends YModel
     }
 
     /**
+     * Получаем атрибуты меток полей данной таблицы:
+     *
      * @return array customized attribute labels (name=>label)
      */
     public function attributeLabels()
     {
         return array(
-            'id'          => Yii::t('mail', 'ID'),
-            'event_id'    => Yii::t('mail', 'Событие'),
-            'name'        => Yii::t('mail', 'Название'),
-            'description' => Yii::t('mail', 'Описание'),
-            'from'        => Yii::t('mail', 'От'),
-            'to'          => Yii::t('mail', 'Кому'),
-            'theme'       => Yii::t('mail', 'Тема'),
-            'body'        => Yii::t('mail', 'Сообщение'),
-            'code'        => Yii::t('mail', 'Символьный код'),
-            'status'      => Yii::t('mail', 'Статус'),
+            'id'          => Yii::t('MailModule.mail', 'ID'),
+            'event_id'    => Yii::t('MailModule.mail', 'Событие'),
+            'name'        => Yii::t('MailModule.mail', 'Название'),
+            'description' => Yii::t('MailModule.mail', 'Описание'),
+            'from'        => Yii::t('MailModule.mail', 'От'),
+            'to'          => Yii::t('MailModule.mail', 'Кому'),
+            'theme'       => Yii::t('MailModule.mail', 'Тема'),
+            'body'        => Yii::t('MailModule.mail', 'Сообщение'),
+            'code'        => Yii::t('MailModule.mail', 'Символьный код'),
+            'status'      => Yii::t('MailModule.mail', 'Статус'),
         );
     }
 
     /**
      * Retrieves a list of models based on the current search/filter conditions.
+     *
      * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
      */
     public function search()
@@ -116,17 +147,27 @@ class MailTemplate extends YModel
         return new CActiveDataProvider(get_class($this), array('criteria' => $criteria));
     }
 
+    /**
+     * Получаем массив статусов:
+     *
+     * @return miced status
+     **/
     public function getStatusList()
     {
         return array(
-            self::STATUS_ACTIVE     => Yii::t('mail', 'активен'),
-            self::STATUS_NOT_ACTIVE => Yii::t('mail', 'не активен'),
+            self::STATUS_ACTIVE     => Yii::t('MailModule.mail', 'активен'),
+            self::STATUS_NOT_ACTIVE => Yii::t('MailModule.mail', 'не активен'),
         );
     }
 
+    /**
+     * Получаем статусов записи:
+     *
+     * @return string status
+     **/
     public function getStatus()
     {
         $data = $this->statusList;
-        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('mail', '--неизвестно--');
+        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('MailModule.mail', '--неизвестно--');
     }
 }

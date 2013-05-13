@@ -1,38 +1,50 @@
 <?php
-class m000000_000000_comment_base extends CDbMigration
+/**
+ * FileDocComment
+ * Comment install migration
+ * Класс миграций для модуля Comment:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_comment_base extends YDbMigration
 {
+
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'comment';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'user_id' => 'integer DEFAULT NULL',
-            'model' => 'string NOT NULL',
-            'model_id' => 'integer NOT NULL',
-            'url' => 'string DEFAULT NULL',
-            'lang' => 'char(2) DEFAULT NULL',
-            'creation_date' => 'datetime NOT NULL',
-            'name' => 'string NOT NULL',
-            'email' => 'string NOT NULL',
-            'text' => 'text NOT NULL',
-            'status' => "tinyint(4) NOT NULL DEFAULT '0'",
-            'ip' => 'string DEFAULT NULL'
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $this->createTable('{{comment_comment}}', array(
+                'id'            => 'pk',
+                'parent_id'     => 'integer DEFAULT NULL',
+                'user_id'       => 'integer DEFAULT NULL',
+                'model'         => 'varchar(100) NOT NULL',
+                'model_id'      => 'integer NOT NULL',
+                'url'           => 'varchar(150) DEFAULT NULL',
+                'creation_date' => 'datetime NOT NULL',
+                'name'          => 'varchar(150) NOT NULL',
+                'email'         => 'varchar(150) NOT NULL',
+                'text'          => 'text NOT NULL',
+                'status'        => "integer NOT NULL DEFAULT '0'",
+                'ip'            => 'varchar(20) DEFAULT NULL'
+            ), $this->getOptions()
+        );
 
-        $this->createIndex("comment_url",$tableName,"url", false);
-        $this->createIndex("comment_status",$tableName,"status", false);
-        $this->createIndex("comment_model",$tableName,"model", false);
-        $this->createIndex("comment_model_id",$tableName,"model_id", false);
-        $this->createIndex("comment_user_id",$tableName,"user_id", false);
+        $this->createIndex("ix_{{comment_comment}}_status", '{{comment_comment}}', "status", false);
+        $this->createIndex("ix_{{comment_comment}}_model_model_id", '{{comment_comment}}', "model, model_id", false);
+        $this->createIndex("ix_{{comment_comment}}_model", '{{comment_comment}}', "model", false);
+        $this->createIndex("ix_{{comment_comment}}_model_id", '{{comment_comment}}', "model_id", false);
+        $this->createIndex("ix_{{comment_comment}}_user_id", '{{comment_comment}}', "user_id", false);
+        $this->createIndex("ix_{{comment_comment}}_parent_id", '{{comment_comment}}', "parent_id", false);
 
-
-        $this->addForeignKey("comment_user_fk",$tableName,'user_id',$db->tablePrefix.'user','id','CASCADE','CASCADE');
+        $this->addForeignKey("fk_{{comment_comment}}_user_id", '{{comment_comment}}', 'user_id', '{{user_user}}', 'id', 'CASCADE', 'NO ACTION');
+        $this->addForeignKey("fk_{{comment_comment}}_parent_id", '{{comment_comment}}', "parent_id",'{{comment_comment}}', "id",'CASCADE','NO ACTION');
     }
  
+
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'comment');
+        $this->dropTableWithForeignKeys('{{comment_comment}}');
     }
 }

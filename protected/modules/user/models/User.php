@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{User}}".
+ * This is the model class for table "{{user_user}}".
  *
- * The followings are the available columns in table '{{User}}':
+ * The followings are the available columns in table '{{user_user}}':
  * @property integer $id
  * @property string $creation_date
  * @property string $change_date
@@ -46,7 +46,7 @@ class User extends YModel
      */
     public function tableName()
     {
-        return '{{user}}';
+        return '{{user_user}}';
     }
 
     /**
@@ -80,12 +80,12 @@ class User extends YModel
             array('use_gravatar', 'in', 'range' => array(0, 1)),
             array('gender', 'in', 'range' => array_keys($this->gendersList)),
             array('status', 'in', 'range' => array_keys($this->statusList)),
-            array('access_level', 'in', 'range' => array_keys($this->accessLevelsList)),
-            array('nick_name', 'match', 'pattern' => '/^[A-Za-z0-9]{2,50}$/', 'message' => Yii::t('user', 'Неверный формат поля "{attribute}" допустимы только буквы и цифры, от 2 до 20 символов')),
+            array('access_level', 'in', 'range' => array_keys($this->getAccessLevelsList())),
+            array('nick_name', 'match', 'pattern' => '/^[A-Za-z0-9_-]{2,50}$/', 'message' => Yii::t('UserModule.user', 'Неверный формат поля "{attribute}" допустимы только буквы и цифры, от 2 до 20 символов')),
             array('site', 'url', 'allowEmpty' => true),
             array('email', 'email'),
-            array('email', 'unique', 'message' => Yii::t('user', 'Данный email уже используется другим пользователем')),
-            array('nick_name', 'unique', 'message' => Yii::t('user', 'Данный ник уже используется другим пользователем')),
+            array('email', 'unique', 'message' => Yii::t('UserModule.user', 'Данный email уже используется другим пользователем')),
+            array('nick_name', 'unique', 'message' => Yii::t('UserModule.user', 'Данный ник уже используется другим пользователем')),
             array('avatar', 'file', 'types' => implode(',', $module->avatarExtensions), 'maxSize' => $module->avatarMaxSize, 'allowEmpty' => true),
             array('id, creation_date, change_date, middle_name, first_name, last_name, nick_name, email, gender, avatar, password, salt, status, access_level, last_visit, registration_date, registration_ip, activation_ip', 'safe', 'on' => 'search'),
         );
@@ -97,31 +97,31 @@ class User extends YModel
     public function attributeLabels()
     {
         return array(
-            'id'                => Yii::t('user', 'Id'),
-            'creation_date'     => Yii::t('user', 'Дата активации'),
-            'change_date'       => Yii::t('user', 'Дата изменения'),
-            'first_name'        => Yii::t('user', 'Имя'),
-            'last_name'         => Yii::t('user', 'Фамилия'),
-            'middle_name'       => Yii::t('user', 'Отчество'),
-            'nick_name'         => Yii::t('user', 'Ник'),
-            'email'             => Yii::t('user', 'Email'),
-            'gender'            => Yii::t('user', 'Пол'),
-            'password'          => Yii::t('user', 'Пароль'),
-            'salt'              => Yii::t('user', 'Соль'),
-            'status'            => Yii::t('user', 'Статус'),
-            'access_level'      => Yii::t('user', 'Доступ'),
-            'last_visit'        => Yii::t('user', 'Последний визит'),
-            'registration_date' => Yii::t('user', 'Дата регистрации'),
-            'registration_ip'   => Yii::t('user', 'Ip регистрации'),
-            'activation_ip'     => Yii::t('user', 'Ip активации'),
-            'activate_key'      => Yii::t('user', 'Код активации'),
-            'avatar'            => Yii::t('user', 'Аватар'),
-            'use_gravatar'      => Yii::t('user', 'Граватар'),
-            'email_confirm'     => Yii::t('user', 'Email подтвержден'),
-            'birth_date'        => Yii::t('user', 'День рождения'),
-            'site'              => Yii::t('user', 'Сайт/блог'),
-            'location'          => Yii::t('user', 'Расположение'),
-            'about'             => Yii::t('user', 'О себе'),
+            'id'                => Yii::t('UserModule.user', 'Id'),
+            'creation_date'     => Yii::t('UserModule.user', 'Дата активации'),
+            'change_date'       => Yii::t('UserModule.user', 'Дата изменения'),
+            'first_name'        => Yii::t('UserModule.user', 'Имя'),
+            'last_name'         => Yii::t('UserModule.user', 'Фамилия'),
+            'middle_name'       => Yii::t('UserModule.user', 'Отчество'),
+            'nick_name'         => Yii::t('UserModule.user', 'Ник'),
+            'email'             => Yii::t('UserModule.user', 'Email'),
+            'gender'            => Yii::t('UserModule.user', 'Пол'),
+            'password'          => Yii::t('UserModule.user', 'Пароль'),
+            'salt'              => Yii::t('UserModule.user', 'Соль'),
+            'status'            => Yii::t('UserModule.user', 'Статус'),
+            'access_level'      => Yii::t('UserModule.user', 'Доступ'),
+            'last_visit'        => Yii::t('UserModule.user', 'Последний визит'),
+            'registration_date' => Yii::t('UserModule.user', 'Дата регистрации'),
+            'registration_ip'   => Yii::t('UserModule.user', 'Ip регистрации'),
+            'activation_ip'     => Yii::t('UserModule.user', 'Ip активации'),
+            'activate_key'      => Yii::t('UserModule.user', 'Код активации'),
+            'avatar'            => Yii::t('UserModule.user', 'Аватар'),
+            'use_gravatar'      => Yii::t('UserModule.user', 'Граватар'),
+            'email_confirm'     => Yii::t('UserModule.user', 'Email подтвержден'),
+            'birth_date'        => Yii::t('UserModule.user', 'День рождения'),
+            'site'              => Yii::t('UserModule.user', 'Сайт/блог'),
+            'location'          => Yii::t('UserModule.user', 'Расположение'),
+            'about'             => Yii::t('UserModule.user', 'О себе'),
         );
     }
 
@@ -157,15 +157,21 @@ class User extends YModel
 
     public function beforeSave()
     {
-        $this->change_date = new CDbExpression('NOW()');
+        $this->change_date = new CDbExpression(
+            Yii::app()->db->schema instanceof CSqliteSchema
+            ? 'DATETIME("now")'
+            :'NOW()'
+        );
 
-        if (!$this->isNewRecord                                                                      &&
-            ($this->admin()->count() == 1 && $this->_oldAccess_level == self::ACCESS_LEVEL_ADMIN)    &&
-            ($this->access_level == self::ACCESS_LEVEL_USER || $this->status != self::STATUS_ACTIVE)
-        )
+        if (!$this->isNewRecord
+            && $this->admin()->count() == 1
+            && $this->_oldAccess_level == self::ACCESS_LEVEL_ADMIN
+            && ($this->access_level == self::ACCESS_LEVEL_USER || $this->status != self::STATUS_ACTIVE)
+        ) {
             return false;
-        else
-        {
+        }
+
+        if ($this->isNewRecord) {
             $this->registration_date = $this->creation_date = $this->change_date;
             $this->registration_ip   = $this->activation_ip = Yii::app()->request->userHostAddress;
             $this->activate_key      = $this->generateActivationKey();
@@ -221,59 +227,59 @@ class User extends YModel
     public function getAccessLevelsList()
     {
         return array(
-            self::ACCESS_LEVEL_ADMIN => Yii::t('user', 'Администратор'),
-            self::ACCESS_LEVEL_USER  => Yii::t('user', 'Пользователь'),
+            self::ACCESS_LEVEL_ADMIN => Yii::t('UserModule.user', 'Администратор'),
+            self::ACCESS_LEVEL_USER  => Yii::t('UserModule.user', 'Пользователь'),
         );
     }
 
     public function getAccessLevel()
     {
-        $data = $this->accessLevelsList;
-        return isset($data[$this->access_level]) ? $data[$this->access_level] : Yii::t('user', '*нет*');
+        $data = $this->getAccessLevelsList();
+        return isset($data[$this->access_level]) ? $data[$this->access_level] : Yii::t('UserModule.user', '*нет*');
     }
 
     public function getStatusList()
     {
         return array(
-            self::STATUS_ACTIVE     => Yii::t('user', 'Активен'),
-            self::STATUS_BLOCK      => Yii::t('user', 'Заблокирован'),
-            self::STATUS_NOT_ACTIVE => Yii::t('user', 'Не активирован'),
+            self::STATUS_ACTIVE     => Yii::t('UserModule.user', 'Активен'),
+            self::STATUS_BLOCK      => Yii::t('UserModule.user', 'Заблокирован'),
+            self::STATUS_NOT_ACTIVE => Yii::t('UserModule.user', 'Не активирован'),
         );
     }
 
     public function getStatus()
     {
         $data = $this->statusList;
-        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('user', 'статус не определен');
+        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('UserModule.user', 'статус не определен');
     }
 
     public function getGendersList()
     {
         return array(
-            self::GENDER_FEMALE => Yii::t('user', 'женский'),
-            self::GENDER_MALE   => Yii::t('user', 'мужской'),
-            self::GENDER_THING  => Yii::t('user', 'не указан'),
+            self::GENDER_FEMALE => Yii::t('UserModule.user', 'женский'),
+            self::GENDER_MALE   => Yii::t('UserModule.user', 'мужской'),
+            self::GENDER_THING  => Yii::t('UserModule.user', 'не указан'),
         );
     }
 
     public function getGender()
     {
         $data = $this->gendersList;
-        return isset($data[$this->gender]) ? $data[$this->gender] : Yii::t('user', 'не указан');
+        return isset($data[$this->gender]) ? $data[$this->gender] : Yii::t('UserModule.user', 'не указан');
     }
 
     public function getEmailConfirmStatusList()
     {
         return array(
-            self::EMAIL_CONFIRM_YES => Yii::t('user', 'Да'),
-            self::EMAIL_CONFIRM_NO  => Yii::t('user', 'Нет'),
+            self::EMAIL_CONFIRM_YES => Yii::t('UserModule.user', 'Да'),
+            self::EMAIL_CONFIRM_NO  => Yii::t('UserModule.user', 'Нет'),
         );
     }
 
     public function getEmailConfirmStatus()
     {
         $data = $this->emailConfirmStatusList;
-        return isset($data[$this->email_confirm]) ? $data[$this->email_confirm] : Yii::t('user', '*неизвестно*');
+        return isset($data[$this->email_confirm]) ? $data[$this->email_confirm] : Yii::t('UserModule.user', '*неизвестно*');
     }
 
     public function hashPassword($password, $salt)
@@ -302,20 +308,22 @@ class User extends YModel
      * @param int $size требуемый размер аватарки в пикселях
      * @return string код аватарки
      */
+
+    //@TODO подумать не лучше ли возвращать CHtml::image а не просто строку
     public function getAvatar($size = 64, $htmlOptions = array())
     {
         $size = intval($size);
-        $size || ($size = 64);
+        $size || ($size = 32);
 
         if (!is_array($htmlOptions))
-            throw new CException(Yii::t('user', "htmlOptions must be array or not specified!"));
+            throw new CException(Yii::t('UserModule.user', "htmlOptions must be array or not specified!"));
 
         isset($htmlOptions['width']) || ($htmlOptions['width'] = $size);
         isset($htmlOptions['height']) || ($htmlOptions['height'] = $size);
 
         // если это граватар
         if ($this->use_gravatar && $this->email)
-            return CHtml::image('http://gravatar.com/avatar/' . md5($this->email) . "?d=mm&s=" . $size, $this->nick_name, $htmlOptions);
+            return 'http://gravatar.com/avatar/' . md5($this->email) . "?d=mm&s=" . $size;
         else if ($this->avatar)
         {
             $avatarsDir = Yii::app()->getModule('user')->avatarsDir;
@@ -324,7 +332,7 @@ class User extends YModel
 
             // Посмотрим, есть ли у нас уже нужный размер? Если есть - используем его
             if (file_exists($basePath . "/" . $sizedFile))
-                return CHtml::image(Yii::app()->baseUrl . $avatarsDir . "/" . $sizedFile, $this->nick_name, $htmlOptions);
+                return Yii::app()->baseUrl . $avatarsDir . "/" . $sizedFile;
 
             if (file_exists($basePath . "/" . $this->avatar))
             {
@@ -339,7 +347,7 @@ class User extends YModel
                 else
                     @copy($basePath . "/" . $this->avatar, $basePath . "/" . $sizedFile);
 
-                return CHtml::image(Yii::app()->baseUrl . $avatarsDir . "/" . $sizedFile, $this->nick_name, $htmlOptions);
+                return Yii::app()->baseUrl . $avatarsDir . "/" . $sizedFile;
             }
         }
         // Нету аватарки, печалька :(
@@ -373,7 +381,7 @@ class User extends YModel
             'last_name'         => $last_name,
             'salt'              => $salt,
             'password'          => $this->hashPassword($password, $salt),
-            'registration_date' => new CDbExpression('NOW()'),
+            'registration_date' => YDbMigration::expression('NOW()'),
             'registration_ip'   => Yii::app()->request->userHostAddress,
             'activation_ip'     => Yii::app()->request->userHostAddress,
             'status'            => $status,
@@ -406,5 +414,12 @@ class User extends YModel
         $this->status           = self::STATUS_ACTIVE;
         $this->email_confirm    = self::EMAIL_CONFIRM_YES;
         return $this->save();
+    }
+
+    public function needActivation()
+    {
+        return $this->status == User::STATUS_NOT_ACTIVE
+            ? true
+            : false;
     }
 }

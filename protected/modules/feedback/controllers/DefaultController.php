@@ -26,14 +26,14 @@ class DefaultController extends YBackController
             if ($model->status == FeedBack::STATUS_ANSWER_SENDED)
             {
                 $model->answer_user = Yii::app()->user->id;
-                $model->answer_date = new CDbExpression('NOW()');
+                $model->answer_date = YDbMigration::expression('NOW()');
             }
 
             if ($model->save())
             {
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('feedback', 'Сообщение сохранено!')
+                    Yii::t('FeedbackModule.feedback', 'Сообщение сохранено!')
                 );
 
                 if (!isset($_POST['submit-type']))
@@ -62,14 +62,14 @@ class DefaultController extends YBackController
             if ($status != FeedBack::STATUS_ANSWER_SENDED && $model->status == FeedBack::STATUS_ANSWER_SENDED)
             {
                 $model->answer_user = Yii::app()->user->id;
-                $model->answer_date = new CDbExpression('NOW()');
+                $model->answer_date = YDbMigration::expression('NOW()');
             }
 
             if ($model->save())
             {
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('feedback', 'Сообщение обновлено!')
+                    Yii::t('FeedbackModule.feedback', 'Сообщение обновлено!')
                 );
 
                 if (!isset($_POST['submit-type']))
@@ -85,7 +85,7 @@ class DefaultController extends YBackController
     {
         $model = FeedBack::model()->findbyPk((int) $id);
         if (!$model)
-            throw new CHttpException(404, Yii::t('feedback', 'Страница не найдена!'));
+            throw new CHttpException(404, Yii::t('FeedbackModule.feedback', 'Страница не найдена!'));
 
         $form = new AnswerForm;
 
@@ -97,7 +97,7 @@ class DefaultController extends YBackController
         if ($model->status == FeedBack::STATUS_ANSWER_SENDED)
             Yii::app()->user->setFlash(
                 YFlashMessages::NOTICE_MESSAGE,
-                Yii::t('feedback', 'Внимание! Ответ на это сообщение уже был отправлен!')
+                Yii::t('FeedbackModule.feedback', 'Внимание! Ответ на это сообщение уже был отправлен!')
             );
 
         if (Yii::app()->request->isPostRequest && isset($_POST['AnswerForm']))
@@ -110,7 +110,7 @@ class DefaultController extends YBackController
                     'answer'      => $form->answer,
                     'is_faq'      => $form->is_faq,
                     'answer_user' => Yii::app()->user->id,
-                    'answer_date' => new CDbExpression('NOW()'),
+                    'answer_date' => YDbMigration::expression('NOW()'),
                     'status'      => FeedBack::STATUS_ANSWER_SENDED,
                  ));
 
@@ -127,7 +127,7 @@ class DefaultController extends YBackController
                     );
                     Yii::app()->user->setFlash(
                         YFlashMessages::NOTICE_MESSAGE,
-                        Yii::t('feedback', 'Ответ на сообщение отправлен!')
+                        Yii::t('FeedbackModule.feedback', 'Ответ на сообщение отправлен!')
                     );
 
                     $this->redirect(array('/feedback/default/view/', 'id' => $model->id));
@@ -153,7 +153,7 @@ class DefaultController extends YBackController
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
         else
-            throw new CHttpException(400, Yii::t('feedback', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы'));
+            throw new CHttpException(400, Yii::t('FeedbackModule.feedback', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы'));
     }
     
     /**
@@ -179,7 +179,7 @@ class DefaultController extends YBackController
             if (isset($_GET['id']))
                 $this->_model = FeedBack::model()->findbyPk($_GET['id']);
             if ($this->_model === null)
-                throw new CHttpException(404, Yii::t('feedback', 'Запрошенная страница не найдена!'));
+                throw new CHttpException(404, Yii::t('FeedbackModule.feedback', 'Запрошенная страница не найдена!'));
         }
         return $this->_model;
     }

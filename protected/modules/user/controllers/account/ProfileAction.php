@@ -21,10 +21,7 @@ class ProfileAction extends CAction
         {
             $form->setAttributes($_POST['ProfileForm']);
 
-            // проверка по "черным спискам"
-            if (!$module->isAllowedEmail($form->email)) // проверить на email
-                // перенаправить на экшн для фиксации невалидных email-адресов
-                $this->controller->redirect(array($module->invalidEmailAction));
+
             if ($form->validate())
             {
                 // скопируем данные формы
@@ -59,7 +56,7 @@ class ProfileAction extends CAction
                 {
 
                     Yii::log(
-                        Yii::t('user', "Изменен профиль учетной запись #{id}-{nick_name}!", array(
+                        Yii::t('UserModule.user', "Изменен профиль учетной запись #{id}-{nick_name}!", array(
                             '{id}'        => $user->id,
                             '{nick_name}' => $user->nick_name,
                         )),
@@ -67,7 +64,7 @@ class ProfileAction extends CAction
                     );
                     Yii::app()->user->setFlash(
                         YFlashMessages::NOTICE_MESSAGE,
-                        Yii::t('user', 'Ваш профиль успешно изменен!')
+                        Yii::t('UserModule.user', 'Ваш профиль успешно изменен!')
                     );
 
                     if ($module->emailAccountVerification && ($orgMail != $form->email))
@@ -81,13 +78,13 @@ class ProfileAction extends CAction
                         Yii::app()->mail->send(
                             $module->notifyEmailFrom,
                             $user->email,
-                            Yii::t('user', 'Подтверждение нового e-mail адреса на сайте {site} !', array('{site}' => Yii::app()->name)),
+                            Yii::t('UserModule.user', 'Подтверждение нового e-mail адреса на сайте {site} !', array('{site}' => Yii::app()->name)),
                             $emailBody
                         );
 
                         Yii::app()->user->setFlash(
                             YFlashMessages::NOTICE_MESSAGE,
-                            Yii::t('user', 'Вам необходимо продтвердить новый e-mail, проверьте почту!')
+                            Yii::t('UserModule.user', 'Вам необходимо продтвердить новый e-mail, проверьте почту!')
                         );
                     }
                     // Сохраняем профиль
@@ -104,7 +101,7 @@ class ProfileAction extends CAction
                 }
                 else
                     Yii::log(
-                        Yii::t('user', "Ошибка при сохранении профиля! #{id}", array('{id}' => $user->id)),
+                        Yii::t('UserModule.user', "Ошибка при сохранении профиля! #{id}", array('{id}' => $user->id)),
                         CLogger::LEVEL_ERROR, UserModule::$logCategory
                      );
             }

@@ -10,14 +10,18 @@ class MenuController extends YBackController
     {
         $model = $this->loadModel($id);
 
-        $code = "<?php \$this->widget('application.modules.menu.widgets.MenuWidget', array(
-            'name'         => '{$model->code}',
-            'params'       => array('hideEmptyItems' => true),
-            'layoutParams' => array('htmlOptions' => array(
+        $code = "<?php \$this->widget(
+    'application.modules.menu.widgets.MenuWidget', array(
+        'name'         => '{$model->code}',
+        'params'       => array('hideEmptyItems' => true),
+        'layoutParams' => array(
+            'htmlOptions' => array(
                 'class' => 'jqueryslidemenu',
                 'id'    => 'myslidemenu',
-            )),
-        )); ?>";
+            )
+        ),
+    )
+); ?>";
 
         $highlighter = new CTextHighlighter;
         $highlighter->language = 'PHP';
@@ -98,7 +102,7 @@ class MenuController extends YBackController
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
         else
-            throw new CHttpException(400, Yii::t('menu', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
+            throw new CHttpException(400, Yii::t('MenuModule.menu', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
     }   
 
     /**
@@ -122,7 +126,7 @@ class MenuController extends YBackController
     {
         $model = Menu::model()->findByPk($id);
         if ($model === null)
-            throw new CHttpException(404, Yii::t('menu', 'Запрошенная страница не найдена!'));
+            throw new CHttpException(404, Yii::t('MenuModule.menu', 'Запрошенная страница не найдена!'));
         return $model;
     }
 

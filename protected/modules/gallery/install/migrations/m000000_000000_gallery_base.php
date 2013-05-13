@@ -1,66 +1,65 @@
 <?php
-class m000000_000000_gallery_base extends CDbMigration
+/**
+ * Gallery install migration
+ * Класс миграций для модуля Gallery:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_gallery_base extends YDbMigration
 {
+    /**
+     * Накатываем миграцию
+     *
+     * @return null
+     **/
     public function safeUp()
-    {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'gallery';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'name' =>'varchar(300) NOT NULL',
-            'description' => 'text',
-            'status' => "tinyint(4) NOT NULL DEFAULT '1'",
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
-
-        $this->createIndex("gallery_status",$tableName,"status", false);
-
-        $tableName = $db->tablePrefix.'image';
-        $this->createTable($tableName, array(
+    {        
+        /**
+         * gallery:
+         **/
+        $this->createTable('{{gallery_gallery}}', array(
                 'id' => 'pk',
-                'category_id' => 'integer DEFAULT NULL',
-                'parent_id' => 'integer DEFAULT NULL',
-                'name' => 'varchar(300) NOT NULL',
+                'name' =>'varchar(250) NOT NULL',
                 'description' => 'text',
-                'file' => 'varchar(500) NOT NULL',
-                'creation_date' => 'datetime NOT NULL',
-                'user_id' => 'integer DEFAULT NULL',
-                'alt' => 'string NOT NULL',
-                'type' => "tinyint(4) NOT NULL DEFAULT '0'",
-                'status' => "tinyint(3) unsigned NOT NULL DEFAULT '1'",
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+                'status' => "integer NOT NULL DEFAULT '1'",
+            ), $this->getOptions()
+        );
 
-        $this->createIndex("gallery_image_status",$tableName,"status", false);
-        $this->createIndex("gallery_image_user",$tableName,"user_id", false);
-        $this->createIndex("gallery_image_type",$tableName,"type", false);
-        $this->createIndex("gallery_image_category_id",$tableName,"category_id", false);
+        $this->createIndex("ix_{{gallery_gallery}}_status", '{{gallery_gallery}}', "status", false);
 
-        $this->addForeignKey("gallery_image_category_fk",$tableName,'category_id',$db->tablePrefix.'category','id','CASCADE','CASCADE');
-        $this->addForeignKey("gallery_image_user_fk",$tableName,'user_id',$db->tablePrefix.'user','id','SET NULL','CASCADE');
-
-        $tableName = $db->tablePrefix.'image_to_gallery';
-        $this->createTable($tableName, array(
+        /**
+         * image_to_gallery:
+         **/
+        $this->createTable('{{gallery_image_to_gallery}}', array(
                 'id' => 'pk',
                 'image_id'  =>  'integer NOT NULL',
-                'galleryId' => 'integer NOT NULL',
+                'gallery_id' => 'integer NOT NULL',
                 'creation_date' => 'datetime NOT NULL',
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+            ), $this->getOptions()
+        );
 
-        $this->createIndex("gallery_to_image_unique",$tableName,"image_id,galleryId", true);
-        $this->createIndex("gallery_to_image_image",$tableName,"image_id", false);
-        $this->createIndex("gallery_to_image_gallery",$tableName,"galleryId", false);
+        //ix
+        $this->createIndex("ux_{{gallery_image_to_gallery}}_gallery_to_image", '{{gallery_image_to_gallery}}', "image_id, gallery_id", true);
+        $this->createIndex("ix_{{gallery_image_to_gallery}}_gallery_to_image_image",  '{{gallery_image_to_gallery}}', "image_id", false);
+        $this->createIndex("ix_{{gallery_image_to_gallery}}_gallery_to_image_gallery", '{{gallery_image_to_gallery}}', "gallery_id", false);
 
-        $this->addForeignKey("gallery_to_image_gallery_fk",$tableName,'galleryId',$db->tablePrefix.'gallery','id','CASCADE','CASCADE');
-
-
-
+        //fk  
+        $this->addForeignKey("fk_{{gallery_image_to_gallery}}_gallery_to_image_gallery",'{{gallery_image_to_gallery}}', 'gallery_id','{{gallery_gallery}}', 'id', 'CASCADE', 'NO ACTION');
+        $this->addForeignKey("fk_{{gallery_image_to_gallery}}_gallery_to_image_image",'{{gallery_image_to_gallery}}', 'image_id', '{{image_image}}', 'id', 'CASCADE', 'NO ACTION');
     }
- 
+
+    /**
+     * Откатываем миграцию
+     *
+     * @return null
+     **/
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'image_to_gallery');
-        $this->dropTable($db->tablePrefix.'image');
-        $this->dropTable($db->tablePrefix.'gallery');
-
+       $this->dropTableWithForeignKeys('{{gallery_image_to_gallery}}');
+       $this->dropTableWithForeignKeys('{{gallery_gallery}}');
     }
 }

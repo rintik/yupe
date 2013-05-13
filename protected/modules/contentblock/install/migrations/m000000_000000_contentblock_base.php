@@ -1,26 +1,36 @@
 <?php
-class m000000_000000_contentblock_base extends CDbMigration
+/**
+ * ContentBlock install migration
+ * Класс миграций для модуля ContentBlock:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_contentblock_base extends YDbMigration
 {
+
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-        $tableName = $db->tablePrefix.'content_block';
-        $this->createTable($tableName, array(
-            'id' => 'pk',
-            'name' => 'string NOT NULL',
-            'code' => 'string NOT NULL',
-            'type' => "tinyint(4) NOT NULL DEFAULT '1'",
-            'content' => "text NOT NULL",
-            'description' => "varchar(300) DEFAULT NULL"
-        ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $this->createTable('{{contentblock_content_block}}', array(
+                'id' => 'pk',
+                'name' => 'varchar(250) NOT NULL',
+                'code' => 'varchar(100) NOT NULL',
+                'type' => "integer NOT NULL DEFAULT '1'",
+                'content' => "text NOT NULL",
+                'description' => "varchar(255) DEFAULT NULL"
+            ), $this->getOptions()
+        );
 
-        $this->createIndex("contentblock_code_unique",$tableName,"code", true);
-        $this->createIndex("contentblock_type",$tableName,"type", false);
+        $this->createIndex("ux_{{contentblock_content_block}}_code", '{{contentblock_content_block}}', "code", true);
+        $this->createIndex("ix_{{contentblock_content_block}}_type", '{{contentblock_content_block}}', "type", false);
     }
  
+
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-        $this->dropTable($db->tablePrefix.'content_block');
+        $this->dropTableWithForeignKeys('{{contentblock_content_block}}');
     }
 }

@@ -14,7 +14,7 @@ class DefaultController extends YBackController
         $this->render('view', array('model' => $this->loadModel()));
     }
 
-    public function actionChangepassword($id)
+    public function actionChangepassword()
     {
         $model = $this->loadModel();
 
@@ -30,7 +30,7 @@ class DefaultController extends YBackController
 
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('user', 'Пароль успешно изменен!')
+                    Yii::t('UserModule.user', 'Пароль успешно изменен!')
                 );
                 $this->redirect(array('/user/default/view', 'id' => $model->id));
             }
@@ -62,7 +62,7 @@ class DefaultController extends YBackController
             {
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('user', 'Новый пользователь добавлен!')
+                    Yii::t('UserModule.user', 'Новый пользователь добавлен!')
                 );
 
                 if (!isset($_POST['submit-type']))
@@ -90,7 +90,7 @@ class DefaultController extends YBackController
             {
                 Yii::app()->user->setFlash(
                     YFlashMessages::NOTICE_MESSAGE,
-                    Yii::t('user', 'Данные обновлены!')
+                    Yii::t('UserModule.user', 'Данные обновлены!')
                 );
 
                 if (!isset($_POST['submit-type']))
@@ -118,7 +118,7 @@ class DefaultController extends YBackController
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
         else
-            throw new CHttpException(400, Yii::t('user', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
+            throw new CHttpException(400, Yii::t('UserModule.user', 'Неверный запрос. Пожалуйста, больше не повторяйте такие запросы!'));
     }
 
     /**
@@ -134,6 +134,48 @@ class DefaultController extends YBackController
     }
 
     /**
+     * Для отправки письма с активацией:
+     *
+     * @return void
+     */
+    public function actionSendactivation($id)
+    {
+        if (($user = User::model()->findbyPk($id)) === null) {
+            if (!Yii::app()->request->isPostRequest || !Yii::app()->request->isAjaxRequest) {
+                Yii::app()->user->setFlash(
+                    YFlashMessages::ERROR_MESSAGE,
+                    Yii::t('UserModule.user', 'Пользователь #{id} не найден!', array('{id}' => $id))
+                );
+                $this->redirect(array('index'));
+            } else
+                Yii::app()->ajax->failure(
+                    Yii::t('UserModule.user', 'Пользователь #{id} не найден!', array('{id}' => $id))
+                );
+        }
+
+        // отправка email с просьбой активировать аккаунт
+        $mailBody = $this->renderPartial('needAccountActivationEmail', array('model' => $user), true);
+        
+        Yii::app()->mail->send(
+            $this->module->notifyEmailFrom,
+            $user->email,
+            Yii::t('UserModule.user', 'Регистрация на сайте {site} !', array('{site}' => Yii::app()->name)),
+            $mailBody
+        );
+
+        if (!Yii::app()->request->isPostRequest || !Yii::app()->request->isAjaxRequest) {
+            Yii::app()->user->setFlash(
+                YFlashMessages::NOTICE_MESSAGE,
+                Yii::t('UserModule.user', 'Письмо с активацией отправлено пользователю #{id}!', array('{id}' => $id))
+            );
+            $this->redirect(array('index'));
+        } else
+            Yii::app()->ajax->success(
+                Yii::t('UserModule.user', 'Письмо с активацией отправлено пользователю #{id}!', array('{id}' => $id))
+            );
+    }
+
+    /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @return User
@@ -145,7 +187,7 @@ class DefaultController extends YBackController
             if (isset($_GET['id']))
                 $this->_model = User::model()->findbyPk($_GET['id']);
             if ($this->_model === null)
-                throw new CHttpException(404, Yii::t('user', 'Запрошенная страница не найдена!'));
+                throw new CHttpException(404, Yii::t('UserModule.user', 'Запрошенная страница не найдена!'));
         }
         return $this->_model;
     }

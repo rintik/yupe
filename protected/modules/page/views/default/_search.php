@@ -4,21 +4,14 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'method'      => 'get',
     'type'        => 'vertical',
     'htmlOptions' => array('class' => 'well'),
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <fieldset class="inline">
         <div class="row-fluid control-group">
             <div class="span3">
-                <?php echo $form->dropDownListRow($model, 'parent_id', $pages, array('empty' => Yii::t('page', '- не выбрана -'))); ?>
+                <?php echo $form->dropDownListRow($model, 'parent_id', $pages, array('empty' => Yii::t('PageModule.page', '- не выбрана -'))); ?>
             </div>
             <div class="span3">
-                <?php echo $form->dropDownListRow($model, 'status', $model->statusList, array('empty' => Yii::t('page', '- не важно -'))); ?>
+                <?php echo $form->dropDownListRow($model, 'status', $model->statusList, array('empty' => Yii::t('PageModule.page', '- не важно -'))); ?>
             </div>
             <div class="span3">
                 <?php echo $form->textFieldRow($model, 'creation_date'); ?>
@@ -32,6 +25,9 @@ Yii::app()->clientScript->registerScript('fieldset', "
                 <?php echo $form->textFieldRow($model, 'title', array('maxlength' => 150)); ?>
             </div>
             <div class="span3">
+                <?php echo $form->textFieldRow($model, 'title_short', array('maxlength' => 150)); ?>
+            </div>
+            <div class="span3">
                 <?php echo $form->textFieldRow($model, 'slug', array('maxlength' => 150)); ?>
             </div>
             <div class="span3">
@@ -43,7 +39,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
         </div>
         <div class="row-fluid control-group">
             <div class="span3">
-                <?php echo $form->dropDownListRow($model, 'category_id', CHtml::listData($this->module->getCategoryList(), 'id', 'name'), array('empty' => Yii::t('news', '- не важно -')), array('empty' => Yii::t('page', '- не выбрана -'))); ?>
+                <?php echo $form->dropDownListRow($model, 'category_id', CHtml::listData($this->module->getCategoryList(), 'id', 'name'), array('empty' => Yii::t('news', '- не важно -')), array('empty' => Yii::t('PageModule.page', '- не выбрана -'))); ?>
             </div>
         </div>
         <div class="row-fluid control-group">
@@ -57,7 +53,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
        'buttonType'  => 'submit',
        'type'        => 'primary',
        'encodeLabel' => false,
-       'label'       => '<i class="icon-search icon-white">&nbsp;</i> '.Yii::t('page', 'Искать страницы'),
+       'label'       => '<i class="icon-search icon-white">&nbsp;</i> ' . Yii::t('PageModule.page', 'Искать страницы'),
     )); ?>
 
 <?php $this->endWidget(); ?>

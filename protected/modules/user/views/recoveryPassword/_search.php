@@ -4,14 +4,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'method'      => 'get',
     'type'        => 'vertical',
     'htmlOptions' => array('class' => 'well'),
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
     <fieldset class="inline">
         <?php echo $form->textFieldRow($model, 'id'); ?>
         <?php echo $form->textFieldRow($model, 'user_id'); ?>
@@ -23,7 +16,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
         'buttonType'  => 'submit',
         'type'        => 'primary',
         'encodeLabel' => false,
-        'label'       => '<i class="icon-search icon-white">&nbsp;</i> '.Yii::t('user', 'Искать пароль'),
+        'label'       => '<i class="icon-search icon-white">&nbsp;</i> '.Yii::t('UserModule.user', 'Искать пароль'),
     )); ?>
 
 <?php $this->endWidget(); ?>

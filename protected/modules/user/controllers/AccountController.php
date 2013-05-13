@@ -4,9 +4,11 @@ class AccountController extends YFrontController
     public function actions()
     {
         return array(
-            'captcha'          => array(
+            'captcha' => array(
                 'class'     => 'CCaptchaAction',
                 'backColor' => 0xFFFFFF,
+                'testLimit' => 1,
+                'minLength' => Yii::app()->getModule('user')->minCaptchaLength,
             ),
             'registration'     => array(
                 'class' => 'application.modules.user.controllers.account.RegistrationAction',
@@ -20,8 +22,8 @@ class AccountController extends YFrontController
             'login'            => array(
                 'class' => 'application.modules.user.controllers.account.LoginAction',
             ),
-            'fblogin'          => array(
-                'class' => 'application.modules.user.controllers.account.FbloginAction',
+            'backendlogin'            => array(
+                'class' => 'application.modules.user.controllers.account.LoginAction',
             ),
             'logout'           => array(
                 'class' => 'application.modules.user.controllers.account.LogOutAction',

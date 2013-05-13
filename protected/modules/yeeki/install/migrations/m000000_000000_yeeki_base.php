@@ -1,83 +1,92 @@
 <?php
-class m000000_000000_yeeki_base extends CDbMigration
+/**
+ * FileDocComment
+ * Yeeki install migration
+ * Класс миграций для модуля Yeeki:
+ *
+ * @category YupeMigration
+ * @package  YupeCMS
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+class m000000_000000_yeeki_base extends YDbMigration
 {
+
     public function safeUp()
     {
-        $db = $this->getDbConnection();
-
-        $tableName = $db->tablePrefix.'wiki_page';
-        $this->createTable($tableName, array(
+        $this->createTable(
+            '{{wiki_wiki_page}}',
+            array(
                 'id' => 'pk',
                 'is_redirect' => "boolean DEFAULT '0'",
-                'page_uid' => 'string DEFAULT NULL',
-                'namespace' => 'string DEFAULT NULL',
+                'page_uid' => 'varchar(250) DEFAULT NULL',
+                'namespace' => 'varchar(250) DEFAULT NULL',
                 'content' => 'text',
                 'revision_id' => 'integer DEFAULT NULL',
                 'user_id' => 'integer DEFAULT NULL',
                 'created_at' => 'integer DEFAULT NULL',
                 'updated_at' => 'integer DEFAULT NULL',
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("wiki_page_revision",$tableName,"revision_id", false);
-        $this->createIndex("wiki_page_uid",$tableName,"user_id", false);
-        $this->createIndex("wiki_page_namespace",$tableName,"namespace", false);
-        $this->createIndex("wiki_page_created",$tableName,"created_at", false);
-        $this->createIndex("wiki_page_updated",$tableName,"updated_at", false);
+        $this->createIndex("ix_{{wiki_wiki_page}}_revision_id", '{{wiki_wiki_page}}', "revision_id", false);
+        $this->createIndex("ix_{{wiki_wiki_page}}_user_id", '{{wiki_wiki_page}}', "user_id", false);
+        $this->createIndex("ix_{{wiki_wiki_page}}_namespace", '{{wiki_wiki_page}}', "namespace", false);
+        $this->createIndex("ix_{{wiki_wiki_page}}_created_at", '{{wiki_wiki_page}}', "created_at", false);
+        $this->createIndex("ix_{{wiki_wiki_page}}_updated_at", '{{wiki_wiki_page}}', "updated_at", false);
 
-        $this->addForeignKey("wiki_page_user_fk",$tableName,'user_id',$db->tablePrefix.'user','id','SET NULL','CASCADE');
+        //fk
+        $this->addForeignKey("fk_{{wiki_wiki_page}}_user_id", '{{wiki_wiki_page}}', 'user_id', '{{user_user}}', 'id', 'SET NULL', 'CASCADE');
 
-        $tableName = $db->tablePrefix.'wiki_page_revision';
-        $this->createTable($tableName, array(
+        /**
+         * wiki_page_revision:
+         **/
+        $this->createTable(
+            '{{wiki_wiki_page_revision}}',
+            array(
                 'id' => 'pk',
                 'page_id' => 'integer NOT NULL',
-                'comment' => 'string DEFAULT NULL',
+                'comment' => 'varchar(250) DEFAULT NULL',
                 'is_minor' => 'boolean DEFAULT NULL',
                 'content' => 'text',
-                'user_id' => 'string DEFAULT NULL',
+                'user_id' => 'varchar(250) DEFAULT NULL',
                 'created_at' => 'integer DEFAULT NULL',
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
-        $this->createIndex("wiki_page_revision_pageid",$tableName,"page_id", false);
-        $this->addForeignKey("wiki_page_revision_pagefk",$tableName,'page_id',$db->tablePrefix.'wiki_page','id','CASCADE','CASCADE');
-        $this->addForeignKey("wiki_page_revision_fk",$db->tablePrefix."wiki_page",'revision_id',$db->tablePrefix.'wiki_page_revision','id','CASCADE','CASCADE');
+            ),
+            $this->getOptions()
+        );
+        $this->createIndex( "ix_{{wiki_wiki_page_revision}}_pageid",  '{{wiki_wiki_page_revision}}', "page_id", false);
+        $this->addForeignKey( "fk_{{wiki_wiki_page_revision}}_page",  '{{wiki_wiki_page_revision}}', 'page_id',  '{{wiki_wiki_page}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey( "fk_{{wiki_wiki_page}}_revision_id",  "{{wiki_wiki_page}}", 'revision_id',  '{{wiki_wiki_page_revision}}', 'id', 'CASCADE', 'CASCADE');
 
-        $tableName = $db->tablePrefix.'wiki_link';
-        $this->createTable($tableName, array(
+        /**
+         * wiki_link
+         **/
+        $this->createTable(
+            '{{wiki_wiki_link}}',
+            array(
                 'id' => 'pk',
                 'page_from_id' => 'integer NOT NULL',
                 'page_to_id' => 'integer DEFAULT NULL',
                 'wiki_uid' => 'string DEFAULT NULL',
-                'title' =>  'string DEFAULT NULL'
-            ),"ENGINE=InnoDB DEFAULT CHARSET=utf8");
+                'title' => 'string DEFAULT NULL'
+            ),
+            $this->getOptions()
+        );
 
-        $this->createIndex("wiki_link_code_unique",$tableName,"page_from_id", false);
-        $this->createIndex("wiki_link_status",$tableName,"page_to_id", false);
-        $this->createIndex("wiki_link_uid",$tableName,"wiki_uid", false);
+        $this->createIndex( "ix_{{wiki_wiki_link}}_code_unique",  '{{wiki_wiki_link}}', "page_from_id", false);
+        $this->createIndex( "ix_{{wiki_wiki_link}}_status",  '{{wiki_wiki_link}}', "page_to_id", false);
+        $this->createIndex( "ix_{{wiki_wiki_link}}_uid",  '{{wiki_wiki_link}}', "wiki_uid", false);
 
-        $this->addForeignKey("wiki_link_page_from_fk",$tableName,'page_from_id',$db->tablePrefix.'wiki_page','id','CASCADE','CASCADE');
-        $this->addForeignKey("wiki_link_page_to_fk",$tableName,'page_to_id',$db->tablePrefix.'wiki_page','id','CASCADE','CASCADE');
-
-
+        $this->addForeignKey( "fk_{{wiki_wiki_link}}_page_from_fk",  '{{wiki_wiki_link}}', 'page_from_id',  '{{wiki_wiki_page}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey( "fk_{{wiki_wiki_link}}_page_to_fk",  '{{wiki_wiki_link}}', 'page_to_id',  '{{wiki_wiki_page}}', 'id', 'CASCADE', 'CASCADE');
     }
  
     public function safeDown()
     {
-        $db = $this->getDbConnection();
-
-        // remove foreign keys prior to table drop to avoid loop
-        // wiki_page_link
-        $this->dropForeignKey("wiki_link_page_from_fk",$db->tablePrefix.'wiki_link');
-        $this->dropForeignKey("wiki_link_page_to_fk",$db->tablePrefix.'wiki_link');
-
-        // wiki_page_revision
-        $this->dropForeignKey("wiki_page_revision_pagefk",$db->tablePrefix.'wiki_page_revision');
-        $this->dropForeignKey("wiki_page_revision_fk",$db->tablePrefix.'wiki_page_revision');
-
-        // wiki_page
-        $this->dropForeignKey("wiki_page_user_fk",$db->tablePrefix.'wiki_page');
-
-        $this->dropTable($db->tablePrefix.'wiki_page_revision');
-        $this->dropTable($db->tablePrefix.'wiki_link');
-        $this->dropTable($db->tablePrefix.'wiki_page');
-
+        $this->dropTableWithForeignKeys('{{wiki_wiki_link}}');
+        $this->dropTableWithForeignKeys('{{wiki_wiki_page_revision}}');
+        $this->dropTableWithForeignKeys('{{wiki_wiki_page}}');
     }
 }

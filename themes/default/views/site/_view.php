@@ -23,12 +23,13 @@
             foreach ($tags as &$tag)
             {
                 $tag = CHtml::encode($tag);
-                echo CHtml::link($tag, array('/posts/', 'tag' => $tag));
+                echo CHtml::link($tag, array('/posts/', 'tag' => $tag)).' ';
             }
             unset($tag);
         }
         else
             echo Yii::t('blog', 'тегов нет');
         ?>
+        комментарии: <?php echo $data->commentsCount;?>
     </div>
 </div>

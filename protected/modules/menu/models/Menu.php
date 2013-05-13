@@ -32,7 +32,7 @@ class Menu extends YModel
      */
     public function tableName()
     {
-        return '{{menu}}';
+        return '{{menu_menu}}';
     }
 
     /**
@@ -44,7 +44,7 @@ class Menu extends YModel
             array('name, code, description', 'required', 'except' => 'search'),
             array('status', 'numerical', 'integerOnly' => true),
             array('name, code, description', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
-            array('name, description', 'length', 'max' => 300),
+            array('name, description', 'length', 'max' => 255),
             array('code', 'length', 'max' => 100),
             array('code', 'YSLugValidator'),
             array('code', 'unique'),
@@ -71,11 +71,11 @@ class Menu extends YModel
     public function attributeLabels()
     {
         return array(
-            'id'          => Yii::t('menu', 'Id'),
-            'name'        => Yii::t('menu', 'Название'),
-            'code'        => Yii::t('menu', 'Уникальный код'),
-            'description' => Yii::t('menu', 'Описание'),
-            'status'      => Yii::t('menu', 'Статус'),
+            'id'          => Yii::t('MenuModule.menu', 'Id'),
+            'name'        => Yii::t('MenuModule.menu', 'Название'),
+            'code'        => Yii::t('MenuModule.menu', 'Уникальный код'),
+            'description' => Yii::t('MenuModule.menu', 'Описание'),
+            'status'      => Yii::t('MenuModule.menu', 'Статус'),
         );
     }
 
@@ -85,11 +85,11 @@ class Menu extends YModel
     public function attributeDescriptions()
     {
         return array(
-            'id'          => Yii::t('menu', 'Id меню'),
-            'name'        => Yii::t('menu', 'Название меню в системе.'),
-            'code'        => Yii::t('menu', 'Уникальный код используется в виджете, как идентификатор для вывода меню, заполняется латинскими символами.'),
-            'description' => Yii::t('menu', 'Краткое описание меню.'),
-            'status'      => Yii::t('menu', 'Установите статус меню: <br /><br /><span class="label label-success">активно</span> &ndash; меню будет отображаться на странице сайта.<br /><br /><span class="label label-warning">не активно</span> &ndash; меню отображаться не будет.'),
+            'id'          => Yii::t('MenuModule.menu', 'Id меню'),
+            'name'        => Yii::t('MenuModule.menu', 'Название меню в системе.'),
+            'code'        => Yii::t('MenuModule.menu', 'Уникальный код используется в виджете, как идентификатор для вывода меню, заполняется латинскими символами.'),
+            'description' => Yii::t('MenuModule.menu', 'Краткое описание меню.'),
+            'status'      => Yii::t('MenuModule.menu', 'Установите статус меню: <br /><br /><span class="label label-success">активно</span> &ndash; меню будет отображаться на странице сайта.<br /><br /><span class="label label-warning">не активно</span> &ndash; меню отображаться не будет.'),
         );
     }
 
@@ -118,48 +118,51 @@ class Menu extends YModel
 
     protected function afterSave()
     {
-        $availableLanguages = explode(',', Yii::app()->getModule('yupe')->availableLanguages);
-        foreach ($availableLanguages as &$lang)
-            Yii::app()->cache->delete(Yii::app()->getModule('menu')->menuCache . $this->id . trim($lang));
+        Yii::app()->cache->clear($this->code);
     }
 
     protected function afterDelete()
     {
-        $availableLanguages = explode(',', Yii::app()->getModule('yupe')->availableLanguages);
-        foreach ($availableLanguages as &$lang)
-            Yii::app()->cache->delete(Yii::app()->getModule('menu')->menuCache . $this->id . trim($lang));
+        Yii::app()->cache->clear($this->code);
     }
 
     public function getStatusList()
     {
         return array(
-            self::STATUS_DISABLED => Yii::t('menu', 'не активно'),
-            self::STATUS_ACTIVE   => Yii::t('menu', 'активно'),
+            self::STATUS_DISABLED => Yii::t('MenuModule.menu', 'не активно'),
+            self::STATUS_ACTIVE   => Yii::t('MenuModule.menu', 'активно'),
         );
     }
 
     public function getStatus()
     {
         $data = $this->statusList;
-        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('menu', '*неизвестно*');
+        return isset($data[$this->status]) ? $data[$this->status] : Yii::t('MenuModule.menu', '*неизвестно*');
     }
 
     // @todo добавить кэширование
     public function getItems($code, $parent_id = 0)
     {
-        $items = Yii::app()->cache->get(Yii::app()->getModule('menu')->menuCache . $this->id . Yii::app()->language);
+        $userId = Yii::app()->user->getId();
+        $items = Yii::app()->cache->get("Menu::{$code}::user_{$userId}" . Yii::app()->language);
 
-        if ($items === false)
-        {
-            $results = self::model()->with(array('menuItems' => array(
-                'on'     => 'menuItems.parent_id = :parent_id AND menuItems.status = 1',
-                'params' => array('parent_id' => (int) $parent_id),
-                'order'  => 'menuItems.sort ASC, menuItems.id ASC',
-            )))->findAll(array(
-                'select'    => array('id', 'code'),
-                'condition' => 't.code = :code AND t.status = 1',
-                'params'    => array(':code' => $code),
-            ));
+        if ($items === false) {
+            $alias = $this->getDbConnection()->getSchema()->quoteTableName('menuItems');
+            $results = self::model()->with(
+                array(
+                    'menuItems' => array(
+                        'on'     => $alias . '.parent_id = :parent_id AND ' . $alias .'.status = 1',
+                        'params' => array('parent_id' => (int) $parent_id),
+                        'order'  => $alias . '.sort ASC, ' . $alias . '.id ASC',
+                    )
+                )
+            )->findAll(
+                array(
+                    'select'    => array('id', 'code'),
+                    'condition' => 't.code = :code AND t.status = 1',
+                    'params'    => array(':code' => $code),
+                )
+            );
 
             $items = array();
 
@@ -168,18 +171,23 @@ class Menu extends YModel
 
             $resultItems = $results[0]->menuItems;
 
-            foreach ($resultItems as $result)
-            {
+            foreach ($resultItems as $result) {
                 $childItems = $this->getItems($code, $result->id);
 
                 // @TODO Если не ставить url и присутствует items, пункт не выводится, возможно баг yii
-                if ($result->href)
-                {
-                    $url = $result->href;
-                    strstr($url, '?') ? list($url, $param) = explode("?", $url) : $param = array();
-                    if ($param)
-                        parse_str($param, $param);
-                    $url = array('url' => array($url) + $param, 'items' => $childItems);
+                if ($result->href) {
+                    // если адрес надо параметризовать через роутер
+                    if (!$result->regular_link) {
+                        $url = $result->href;
+                        strstr($url, '?') ? list($url, $param) = explode("?", $url) : $param = array();
+                        if ($param)
+                            parse_str($param, $param);
+                        $url = array('url' => array($url) + $param, 'items' => $childItems);
+                    } else {
+                        // если обычная ссылка
+                        $url = array('url' => $result->href, 'items' => $childItems);
+                    }
+
                 }
                 else if ($childItems)
                     $url = array('url' => array('#'), 'items' => $childItems);
@@ -202,6 +210,8 @@ class Menu extends YModel
                     'visible'        => MenuItem::model()->getConditionVisible($result->condition_name, $result->condition_denial),
                 ) + $url;
             }
+
+            Yii::app()->cache->set("Menu::{$code}::user_{$userId}" . Yii::app()->language, $items, 0, new TagsCache('menu', $code, 'loggedIn' . $userId));
         }
         return $items;
     }

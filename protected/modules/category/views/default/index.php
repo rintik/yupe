@@ -1,27 +1,27 @@
 <?php
     $this->breadcrumbs = array(
         Yii::app()->getModule('category')->getCategory() => array(),
-        Yii::t('category', 'Категории') => array('/category/default/index'),
-        Yii::t('category', 'Управление'),
+        Yii::t('CategoryModule.category', 'Категории') => array('/category/default/index'),
+        Yii::t('CategoryModule.category', 'Управление'),
     );
 
-    $this->pageTitle = Yii::t('category', 'Категории - управление');
+    $this->pageTitle = Yii::t('CategoryModule.category', 'Категории - управление');
 
     $this->menu = array(
-        array('icon' => 'list-alt', 'label' => Yii::t('category', 'Управление категориями'), 'url' => array('/category/default/index')),
-        array('icon' => 'plus-sign', 'label' => Yii::t('category', 'Добавить категорию'), 'url' => array('/category/default/create')),
+        array('icon' => 'list-alt', 'label' => Yii::t('CategoryModule.category', 'Управление категориями'), 'url' => array('/category/default/index')),
+        array('icon' => 'plus-sign', 'label' => Yii::t('CategoryModule.category', 'Добавить категорию'), 'url' => array('/category/default/create')),
     );
 ?>
 <div class="page-header">
     <h1>
-        <?php echo Yii::t('category', 'Категории'); ?>
-        <small><?php echo Yii::t('category', 'управление'); ?></small>
+        <?php echo Yii::t('CategoryModule.category', 'Категории'); ?>
+        <small><?php echo Yii::t('CategoryModule.category', 'управление'); ?></small>
     </h1>
 </div>
 
 <button class="btn btn-small dropdown-toggle" data-toggle="collapse" data-target="#search-toggle">
     <i class="icon-search">&nbsp;</i>
-    <?php echo CHtml::link(Yii::t('category', 'Поиск категорий'), '#', array('class' => 'search-button')); ?>
+    <?php echo CHtml::link(Yii::t('CategoryModule.category', 'Поиск категорий'), '#', array('class' => 'search-button')); ?>
     <span class="caret">&nbsp;</span>
 </button>
 
@@ -41,7 +41,7 @@ $this->renderPartial('_search', array('model' => $model));
 
 <br/>
 
-<p><?php echo Yii::t('category', 'В данном разделе представлены средства управления категориями'); ?></p>
+<p><?php echo Yii::t('CategoryModule.category', 'В данном разделе представлены средства управления категориями'); ?></p>
 
 <?php $this->widget('application.modules.yupe.components.YCustomGridView', array(
     'id'           => 'category-grid',
@@ -49,13 +49,21 @@ $this->renderPartial('_search', array('model' => $model));
     'dataProvider' => $model->search(),
     'filter'       => $model,
     'columns'      => array(
-        'id',
-         array(
+        array(
+            'name'  => 'id',
+            'type'  => 'raw',
+            'value' => 'CHtml::link($data->id, array("/category/default/update", "id" => $data->id))',
+        ),
+        array(
             'name'  => 'name',
             'type'  => 'raw',
-            'value' => 'CHtml::link($data->name, array("/category/default/update", "alias" => $data->alias))',
+            'value' => 'CHtml::link($data->name, array("/category/default/update", "id" => $data->id))',
         ),
-        'alias',
+        array(
+            'name'  => 'alias',
+            'type'  => 'raw',
+            'value' => 'CHtml::link($data->alias, array("/category/default/update", "id" => $data->id))',
+        ),
         array(
             'name'  => 'parent_id',
             'value' => '$data->getParentName()',
@@ -65,11 +73,16 @@ $this->renderPartial('_search', array('model' => $model));
             'type'  => 'raw',
             'value' => '$data->image ? CHtml::image($data->imageSrc, $data->name, array("width"  => 100, "height" => 100)) : "---"',
         ),
-        'lang',
+        array(
+            'name'  => 'lang',
+            'value'  => '$data->lang',
+            'filter' => Yii::app()->getModule('yupe')->getLanguagesList()
+        ),
         array(
             'name'  => 'status',
             'type'  => 'raw',
             'value' => '$this->grid->returnBootstrapStatusHtml($data, "status", "Status")',
+            'filter' => $model->getStatusList()
         ),
         array(
             'class' => 'bootstrap.widgets.TbButtonColumn',

@@ -4,14 +4,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'method'      => 'get',
     'type'        => 'vertical',
     'htmlOptions' => array('class' => 'well'),
-));
-
-Yii::app()->clientScript->registerScript('fieldset', "
-    $('document').ready(function () {
-        $('.popover-help').popover({ trigger : 'hover', delay : 500 });
-    });
-");
-?>
+)); ?>
 
     <fieldset class="inline">
         <div class="wide row-fluid control-group">
@@ -28,7 +21,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
         </div>
         <div class="wide row-fluid control-group">
             <div class="span7">
-                <?php echo $form->dropDownListRow($model, 'category_id', CHtml::listData(Category::model()->findAll(), 'id', 'name'), array('empty' => Yii::t('catalog', '--выберите--'), 'class' => 'span3 popover-help', 'data-original-title' => $model->getAttributeLabel('category_id'), 'data-content' => $model->getAttributeDescription('category_id'))); ?>
+                <?php echo $form->dropDownListRow($model, 'category_id', CHtml::listData(Category::model()->findAll(), 'id', 'name'), array('empty' => Yii::t('CatalogModule.catalog', '--выберите--'), 'class' => 'span3 popover-help', 'data-original-title' => $model->getAttributeLabel('category_id'), 'data-content' => $model->getAttributeDescription('category_id'))); ?>
             </div>
         </div>
         <div class="wide row-fluid control-group">
@@ -83,7 +76,7 @@ Yii::app()->clientScript->registerScript('fieldset', "
         'type'        => 'primary',
         'encodeLabel' => false,
         'buttonType'  => 'submit',
-        'label'       => '<i class="icon-search icon-white">&nbsp;</i> ' . Yii::t('catalog', 'Искать товар'),
+        'label'       => '<i class="icon-search icon-white">&nbsp;</i> ' . Yii::t('CatalogModule.catalog', 'Искать товар'),
     )); ?>
 
 <?php $this->endWidget(); ?>

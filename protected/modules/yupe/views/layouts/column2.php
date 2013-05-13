@@ -4,7 +4,7 @@
         <?php
         if (count($this->breadcrumbs))
             $this->widget('bootstrap.widgets.TbBreadcrumbs', array(
-                 'homeLink' => CHtml::link(Yii::t('yupe', 'Главная'), array('/yupe/backend/index')),
+                 'homeLink' => CHtml::link(Yii::t('YupeModule.yupe', 'Главная'), array('/yupe/backend/index')),
                  'links'    => $this->breadcrumbs,
             ));
         ?><!-- breadcrumbs -->
@@ -14,7 +14,7 @@
         </div>
         <!-- content -->
     </div>
-    <div class="span3">
+    <div class="span3" style="margin-top: 18px;">
         <?php if (count($this->menu)): ?>
             <div class="well" style="padding: 8px 0;">
                 <?php $this->widget('bootstrap.widgets.TbMenu', array(
